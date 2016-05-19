@@ -39,7 +39,7 @@ OpenCloseDayTime_ML_InR<-function(FirstDate, FinishDateT, OpenDayResults){
     
     #print(OpenDayResults)
     #print(which(OpenDayResults$EffectiveTo=="NA"))
-    RegularHourInd <-which(OpenDayResults$EffectiveTo=="NA")
+    RegularHourInd <-which(is.na(OpenDayResults$EffectiveTo))
     
     for (i in 1:length(RegularHourInd)){
       RegularDates<-TranslateDayofWeek(OpenDayResults$DayOfWeek[RegularHourInd[i]])
@@ -51,7 +51,8 @@ OpenCloseDayTime_ML_InR<-function(FirstDate, FinishDateT, OpenDayResults){
     }
     
     
-    IregularHourInd <-which(OpenDayResults$EffectiveTo != "NA")
+    #IregularHourInd <-which(OpenDayResults$EffectiveTo != "NA")
+    IregularHourInd <-which(! is.na(OpenDayResults$EffectiveTo))
     for (i in 1:length(IregularHourInd)){
       IregularDatesInd<-TranslateDayofWeek(OpenDayResults$DayOfWeek[IregularHourInd[i]])
       IregularDates <- seq(as.Date(OpenDayResults$EffectiveFrom[IregularHourInd[i]]), as.Date(OpenDayResults$EffectiveTo[IregularHourInd[i]]), by="1 day")
