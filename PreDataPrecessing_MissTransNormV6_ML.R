@@ -1,4 +1,4 @@
-PreDataPrecessing_MissTransNormV6<-function(FinishDate.T, InputData, RScriptPath, ExceptionalDayandEffects, CloseDatesCSV, RegularCloseDayofWeekCSV){
+PreDataPrecessing_MissTransNormV6_ML<-function(FinishDateT, InputData, ExceptionalDayandEffects, CloseDays, RegularCloseDayofWeekCSV){
   # FristDate.T, LastDate.T = character 
   # ExceptionalDayandEffects = list(ExceptionalDays, ProximityDays)
   #          where ExceptionalDays = data.frame(ExceptionalDate, Annual, ExceptionalDayTypeID)
@@ -155,4 +155,3 @@ PreDataPrecessing_MissTransNormV6<-function(FinishDate.T, InputData, RScriptPath
               "OldMax" = max(OutputData$Values_BoxCox), "OldMin" = min(OutputData$Values_BoxCox),
               "OutputData" = OutputData))
 }         
-}
