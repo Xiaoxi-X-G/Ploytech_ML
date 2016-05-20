@@ -1,4 +1,4 @@
-RegularCloseDayofWeek_ML_R <-function(OpenDayResults){
+RegularCloseDayofWeek_ML <-function(OpenDayResults){
   ###2. Find Regular Closing date and exclude from input
 
 
