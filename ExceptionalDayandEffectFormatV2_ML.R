@@ -111,5 +111,5 @@ ExceptionalDayandEffectFormatV2_ML<-function(ExceptionalDatesCSV, FirstDate, Fin
   ProximityDays<-ProximityDays[0-which(ProximityDays$ProximityDaysTypeID == "???"), ]
   ProximityDays<- ProximityDays[order(ProximityDays$Dates), ]
   
-  return(list(ExceptionalDays, ProximityDays))
+  return(list(ExceptionalDays2, ProximityDays))
 }
