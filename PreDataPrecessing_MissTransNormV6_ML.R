@@ -13,36 +13,17 @@ PreDataPrecessing_MissTransNormV6<-function(FinishDate.T, InputData, RScriptPath
   #          where Output[[OutputData]] is the data.frame(Dates, Values(WithoutMissing), SD.Annual, SD.Types, ProximityDays, PD.Type, CloseDays, Values_BoxCox(without Outliers), 
   #                                                       Outliers, X_coeff(OutliterCoeff), Values_Scale01(NormalizedValued))
   
-  require(lubridate)
-  require(forecast)
-  source(paste(RScriptPath, "/FindQtrOutliers.R", sep=""))
-  
-  
-  #####################################################################################################
-  ########## -I: Complement the Exceptional Days to a clean, full(from 1st Day), chronological format
-  ##########  0: Incorporate Proximity Day in a chronological format
-  ##########  I: Format data started from FirstDate to LastDate
-  ########## II: Deal with missing values (i.e. NAs)
-  ##########III: Data transformation, box-cox by default
-  ########## IV: Identify and replace outliers by prediction. Outliers & ExceptionalDay & ProximityDays X_coeff are stored 
-  ##########  V: Scaling: min-max normalization to [0, 1]
-  #####################################################################################################  
-  
-  #Dates<-seq(as.Date(FirstDate), as.Date("2016-01-31"), by ="1 day")
-  #CloseDays<-Dates[weekdays(Dates)=="Sunday"]
-  #write.csv(CloseDays, paste(RScriptPath,"/CloseDates.csv", sep=""), row.names=FALSE)
   
   
   ########### -I: Complement the Exceptional Days to a clean, full(from 1st Day), chronological format
   ExceptionalDays<-ExceptionalDayandEffects[[1]]
-  
-  
   ##########  0: Incorporate Proximity Day in a chronological format
   ProximityDays<- ExceptionalDayandEffects[[2]]
   
-  
+  print(ExceptionalDays)
+  print(ProximityDays)
   ################### I: Format data started from FirstDate to LastDate
-  CloseDays<-read.csv(paste(RScriptPath, CloseDatesCSV, sep=""), header = TRUE)
+  #CloseDays<-read.csv(paste(RScriptPath, CloseDatesCSV, sep=""), header = TRUE)
   FirstDate <- as.character(InputData$Dates[1])
   LastDate <- as.character(tail(InputData$Dates, n=1))
   
@@ -70,10 +51,11 @@ PreDataPrecessing_MissTransNormV6<-function(FinishDate.T, InputData, RScriptPath
       PDInd <- which(ProximityDays$Dates == OutputData$Dates[i])
       OutputData$PD.Type[i] <- ProximityDays$ProximityDaysTypeID[PDInd]
     }
-    if (as.factor(OutputData$Dates[i]) %in% CloseDays$x){
+    if (as.factor(OutputData$Dates[i]) %in% CloseDays){
       OutputData$CloseDays[i] <- TRUE
     }
   }
+  
   
   ################### II: Deal with missing values (or NAs)
   # 1) Initialization
@@ -104,18 +86,14 @@ PreDataPrecessing_MissTransNormV6<-function(FinishDate.T, InputData, RScriptPath
     }  
   }
   
-  
-  
   ################# III: Data transformation, box-cox
-  require(MASS)
   lmd<-BoxCox.lambda(OutputData$Values)
-  OutputData$Values_BoxCox<-BoxCox(OutputData$Values, lmd)
-  #boxplot(OutputData$Values_BoxCox)
+  OutputData$Values_BoxCox<-BoxCox(OutputData$Values, lmd)  
   
   
   ################## IV: Identify. Replace outliers and SpecialDay by prediction, not Regular closing days
   ##################     Quarterly Outliers & SpecialDay coeff are stored
-  RegularCloseDayofWeek<-read.csv(paste(RScriptPath, RegularCloseDayofWeekCSV, sep=""), header = TRUE)
+  RegularCloseDayofWeek<-RegularCloseDayofWeekCSV
   
   OutputData$Outliers <- rep(FALSE, length = as.integer(as.Date(LastDate)-as.Date(FirstDate)+1))
   OutputData$X_coeff <-  rep(NA, length = as.integer(as.Date(LastDate)-as.Date(FirstDate)+1))
@@ -129,7 +107,7 @@ PreDataPrecessing_MissTransNormV6<-function(FinishDate.T, InputData, RScriptPath
     }
   }
   
-  
+  print(outliers)
   ################### Untick regular closing day
   if (length(RegularCloseDayofWeek)>0){
     for (j in 1:length(RegularCloseDayofWeek)){
@@ -167,7 +145,6 @@ PreDataPrecessing_MissTransNormV6<-function(FinishDate.T, InputData, RScriptPath
   }
   
   
-  
   ################## V: Scaling: min-max normalization to [0, 1]
   new_max <- 1
   new_min <- 0 
@@ -177,4 +154,5 @@ PreDataPrecessing_MissTransNormV6<-function(FinishDate.T, InputData, RScriptPath
   return(list("lambda" = lmd, "NewMax"=new_max, "NewMin"=new_min,
               "OldMax" = max(OutputData$Values_BoxCox), "OldMin" = min(OutputData$Values_BoxCox),
               "OutputData" = OutputData))
+}         
 }
