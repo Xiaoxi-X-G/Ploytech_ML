@@ -1,4 +1,4 @@
-DataHoursV2_ML <-function(AllData, col, FirstDate, FinishDate.T){
+DataHoursV2_ML <-function(AllData, col, FirstDate, FinishDateT){
   ## AllData is a dataframe =(FinishTime=Epoch, Items = items/Tran, )
   ## But at least AllData needs to include 2 terms, with first being FinishTime (Finish time of each transaction)
   ## col =  indicates what term to analyse
@@ -16,7 +16,7 @@ DataHoursV2_ML <-function(AllData, col, FirstDate, FinishDate.T){
            "21:00:00", "22:00:00", "23:00:00")
   
   
-  A1 <- seq(as.Date(FirstDate), as.Date(FinishDate), by="1 day") # all days
+  A1 <- seq(as.Date(FirstDate), as.Date(FinishDateT), by="1 day") # all days
   
   allhoursName <- paste(rep(A1, each=24), rep(hrs, length(A1)))
   allhours <- array(data=rep(0, length(allhoursName)), dim=length(allhoursName), dimnames=list(allhoursName)) 
