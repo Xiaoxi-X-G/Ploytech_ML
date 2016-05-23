@@ -26,16 +26,14 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayan
   #####################################################################################################  
   
   
-  source(paste(RScriptPath, "/ExponentialCoeff.R", sep=""))
-  require(lubridate)
-  require(forecast)
+ 
   
   ##########  I: Daily prediction using cleaned data
   #1. Try TABTS prediction which takes account of  trend, sensons(7, 365.25), irregular components
   #2. Switch to ETS if raising warnings or errors
   
-  CleanedData <- InputData[["OutputData"]]
-  lg <- as.Date(FinishDate.T)-as.Date(StartDate.T) +1
+  CleanedData <- InputData[[6]]
+  lg <- as.Date(FinishDateT)-as.Date(StartDateT) +1
   fit<-tryCatch(
     {
       day.ts<-msts(CleanedData$Values_Scale01, seasonal.periods=c(7,365.25))
@@ -56,17 +54,16 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayan
   day.pred$mean[which(day.pred$mean<0)]<-0
   Daypred.temp<-day.pred$mean
   
-  Daypred <- data.frame(Dates=seq(as.Date(StartDate.T), as.Date(FinishDate.T), by = "1 day"),
+  Daypred <- data.frame(Dates=seq(as.Date(StartDateT), as.Date(FinishDateT), by = "1 day"),
                         Preds=Daypred.temp)
   
   
-  
-  
+  print(Daypred)
   ########## II: Scaling: from normalized [0, 1] to Box-Cox format
-  NewMax<-InputData[["NewMax"]]
-  NewMin<-InputData[["NewMin"]]
-  OldMax<-InputData[["OldMax"]]
-  OldMin<-InputData[["OldMin"]]
+  NewMax<-InputData[[2]]
+  NewMin<-InputData[[3]]
+  OldMax<-InputData[[4]]
+  OldMin<-InputData[[5]]
   Daypred$Rev2_BoxCox <- (Daypred$Preds - NewMin)/(NewMax-NewMin)*(OldMax - OldMin) + OldMin
   
   
@@ -85,7 +82,7 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayan
   
   
   ########## 2)   Closing day
-  CloseDays<-read.csv(paste(RScriptPath, CloseDatesCSV, sep=""), header = TRUE)
+  #CloseDays<-read.csv(paste(RScriptPath, CloseDatesCSV, sep=""), header = TRUE)
   
   ########## 3)   Proximity day
   ProximityDays <- ExceptionalDayandEffects[[2]]
@@ -113,14 +110,10 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayan
       Daypred$PD.Type[i] <- ProximityDays$ProximityDaysTypeID[PDInd]
     }
     
-    if (as.factor(Daypred$Dates[i]) %in% CloseDays$x){
+    if (as.factor(Daypred$Dates[i]) %in% CloseDays){
       Daypred$CloseDays[i] <- TRUE
     }
   }
-  
-  
-  
-  
   
   
   ########## IV: Deal with Exceptional&Proximity days: using annual history or DayTypeID to groupe data
@@ -144,7 +137,6 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayan
   }
   
   
-  
   # Special days
   Hist.Dates<-c()
   Ind <- c()
@@ -156,9 +148,10 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayan
         Dates<-Daypred$Dates[Ind[i]]
         
         # 1: Find history Exceptional days
-        Hist.Dates <-c(Dates %m-% years(1) ) 
+        #Hist.Dates <-c(Dates %m-% years(1) ) 
+        Hist.Dates <- seq(Dates, length=2, by="-1 year")[2]
         while (Hist.Dates[1] > as.Date(FirstDate)){
-          Hist.Dates <- c(Hist.Dates[1] %m-% years(1), Hist.Dates) #Old to New, i.e.[2013, 2014, 2015]
+          Hist.Dates <- c(seq(Hist.Dates[1], length=2, by="-1 year")[2], Hist.Dates) #Old to New, i.e.[2013, 2014, 2015]
         }
         if (Hist.Dates[1] < as.Date(FirstDate)){
           Hist.Dates <-Hist.Dates[2:length(Hist.Dates)]
@@ -180,9 +173,8 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayan
   }
   
   
-  
   ##########  V: Convert back from BoxCox transformation to original format
-  Lambda <- InputData[["lambda"]]
+  Lambda <- InputData[[1]]
   Daypred$Rev2_Orig <- InvBoxCox(Daypred$Rev2_BoxCox,Lambda)
   Daypred$Rev2_Orig[which(Daypred$Rev2_Orig<0)]<-0
   
@@ -195,6 +187,7 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayan
       Daypred$Rev2_Orig[i]<- mean(Daypred$Rev2_Orig) 
     }
   }
+  
   
   return(Daypred)
 }
