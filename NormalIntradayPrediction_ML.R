@@ -1,4 +1,4 @@
-NormalIntradayPrediction <- function(HistoryAndPredictHourlyInfo, HistoryAndPredictInfo, PredictInfor){
+NormalIntradayPrediction_ML <- function(HistoryAndPredictHourlyInfo, HistoryAndPredictInfo, PredictInfor){
   # HistoryAndPredictHourlyInfo = data.frame(Time, Items)
   # HistoryAndPredictInfo = data.frame(Dates, Items, DayofWeek, OpenFrom, OpenTo, SD.Type, PD.Type, Outlier)
   # PredictInfor = data.frame(Dates, Items, DayofWeek, OpenFrom, OpenTo, SD.Type, PD.Type, Outlier)
@@ -13,7 +13,7 @@ NormalIntradayPrediction <- function(HistoryAndPredictHourlyInfo, HistoryAndPred
   ###  V: Moving to next prediction index until finishes
   ###############################################################################################################
   
-  source(paste(RScriptPath, "/ExponentialCoeff.R", sep=""))
+  #source(paste(RScriptPath, "/ExponentialCoeff.R", sep=""))
 
   
   
@@ -22,8 +22,9 @@ NormalIntradayPrediction <- function(HistoryAndPredictHourlyInfo, HistoryAndPred
   NormalHistoryAndPredictInfo <-
     HistoryAndPredictInfo[which(is.na(HistoryAndPredictInfo$SD.Type) & is.na(HistoryAndPredictInfo$PD.Type) & (!HistoryAndPredictInfo$Outlier)), ]
   
+  
   for (i in 1:length(NormalPredictionDayInd)){
-  ### II: Find last 4 weeks data, which matches date, opening and closing hours (release constraint if no record)
+    ### II: Find last 4 weeks data, which matches date, opening and closing hours (release constraint if no record)
     UpdatedSameNormalDayInd<-tryCatch(
       {temp<-tail(which((NormalHistoryAndPredictInfo$DayofWeek[1: (which(NormalHistoryAndPredictInfo$Dates== PredictInfor$Dates[NormalPredictionDayInd[i]])-1)] == PredictInfor$DayofWeek[NormalPredictionDayInd[i]]) 
                         & (NormalHistoryAndPredictInfo$OpenFrom[1: (which(NormalHistoryAndPredictInfo$Dates== PredictInfor$Dates[NormalPredictionDayInd[i]])-1)] == PredictInfor$OpenFrom[NormalPredictionDayInd[i]])
