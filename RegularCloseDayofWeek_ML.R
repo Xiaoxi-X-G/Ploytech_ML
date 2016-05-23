@@ -8,7 +8,8 @@ RegularCloseDayofWeek_ML <-function(OpenDayResults){
   }else{
     
     RegularDates <- c()
-    RegularHourInd <-which(OpenDayResults$EffectiveTo == "NA")
+    #RegularHourInd <-which(OpenDayResults$EffectiveTo == "NA")
+    RegularHourInd <-which(is.na(OpenDayResults$EffectiveTo))
     if (length(RegularHourInd)>0){
       for (i in 1:length(RegularHourInd)){
         RegularDates<-c(RegularDates, TranslateDayofWeek(OpenDayResults$DayOfWeek[RegularHourInd[i]]))
