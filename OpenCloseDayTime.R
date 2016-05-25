@@ -1,4 +1,4 @@
-OpenCloseDayTime<-function(FirstDate, FinishDate.T, LocationID, RScriptPath, DatabaseName){
+OpenCloseDayTime<-function(FirstDate, FinishDateT, RScriptPath, DatabaseName){
   # Pull data from DataBase with the Right LocationID
   # CloseDatesRight.csv is save in RScriptPath
   # Output = OpenDayTime, dataframe(Dates, OpenFrom, OpenTo)
@@ -99,5 +99,5 @@ OpenCloseDayTime<-function(FirstDate, FinishDate.T, LocationID, RScriptPath, Dat
   }
   
   write.csv(CloseDays, file = paste(RScriptPath, "/CloseDatesRight.csv", sep=""), row.names = F)
-  return(OpenDayTime)
+  return(list(CloseDays, OpenDayTime))
 }
