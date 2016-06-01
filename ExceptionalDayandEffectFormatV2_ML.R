@@ -41,25 +41,27 @@ ExceptionalDayandEffectFormatV2_ML<-function(ExceptionalDatesCSV, FirstDate, Fin
         DeleteInd<-c(DeleteInd, FalseAnnulInd[i])
       }
     }
-  }
-  print(DeleteInd)
-  if (length(DeleteInd)>0){
-    ExceptionalDays <- ExceptionalDays[0-DeleteInd,]
-  }
   
+    #print(DeleteInd)
+    if (length(DeleteInd)>0){
+      ExceptionalDays <- ExceptionalDays[0-DeleteInd,]
+    }
+  }
   
   ## Define Unique Index for ExceptionalDayTypeID
   Annual.Dates<-unique(format(ExceptionalDays$ExceptionalDate[which(ExceptionalDays$Annual)], "%m-%d"))
   UniqueInd<-setdiff(sample(1:(nrow(ExceptionalDays)+1), nrow(ExceptionalDays), replace=F), 
                      unique(ExceptionalDays$ExceptionalDayTypeID[!is.na(ExceptionalDays$ExceptionalDayTypeID)]))
-  for (i in 1:length(Annual.Dates)){
-    ExceptionalDays$ExceptionalDayTypeID[which(format(ExceptionalDays$ExceptionalDate, "%m-%d") 
-                                               == Annual.Dates[i])] <- UniqueInd[i]
+  
+  if (length(Annual.Dates) > 0){
+    for (i in 1:length(Annual.Dates)){
+      ExceptionalDays$ExceptionalDayTypeID[which(format(ExceptionalDays$ExceptionalDate, "%m-%d") 
+                                                 == Annual.Dates[i])] <- UniqueInd[i]
+    }
+    
+    ExceptionalDays$ExceptionalDayTypeID[is.na(ExceptionalDays$ExceptionalDayTypeID)]<-
+      format(round(runif(length(which(is.na(ExceptionalDays$ExceptionalDayTypeID))), min=0, max=9), 3),nsmall = 4) #fill-in a random number if NA
   }
-  
-  ExceptionalDays$ExceptionalDayTypeID[is.na(ExceptionalDays$ExceptionalDayTypeID)]<-
-    format(round(runif(length(which(is.na(ExceptionalDays$ExceptionalDayTypeID))), min=0, max=9), 3),nsmall = 4) #fill-in a random number if NA
-  
   ExceptionalDays2 <- ExceptionalDays[,c(1,2,5)]
   ExceptionalDays2$ExceptionalDate<- as.Date(ExceptionalDays2$ExceptionalDate)
   
@@ -90,26 +92,30 @@ ExceptionalDayandEffectFormatV2_ML<-function(ExceptionalDatesCSV, FirstDate, Fin
                               ProximityDaysTypeID = rep("???", length = 2*nrow(ExceptionalDays2)))
   ProximityDays$ProximityDaysTypeID <- as.character(ProximityDays$ProximityDaysTypeID)
   
-  for (i in 1:nrow(ExceptionalDays2)){
-    if (!(as.character(ExceptionalDays2$ExceptionalDate[i]-1) %in% as.character(ExceptionalDays2$ExceptionalDate))){
-      ProximityDays$Dates[i] <- ExceptionalDays2$ExceptionalDate[i]-1
-      ProximityDays$Annual[i] <- ExceptionalDays2$Annual[i]
-      ProximityDays$ProximityDaysTypeID[i] <- paste(as.character(ExceptionalDays2$ExceptionalDayTypeID[i]), "-", sep="")
+  if (nrow(ExceptionalDays) > 0){
+    for (i in 1:nrow(ExceptionalDays2)){
+      if (!(as.character(ExceptionalDays2$ExceptionalDate[i]-1) %in% as.character(ExceptionalDays2$ExceptionalDate))){
+        ProximityDays$Dates[i] <- ExceptionalDays2$ExceptionalDate[i]-1
+        ProximityDays$Annual[i] <- ExceptionalDays2$Annual[i]
+        ProximityDays$ProximityDaysTypeID[i] <- paste(as.character(ExceptionalDays2$ExceptionalDayTypeID[i]), "-", sep="")
+      }
     }
-  }
-  
-  for (i in 1:nrow(ExceptionalDays2)){
-    if ((!(as.character(ExceptionalDays2$ExceptionalDate[i]+1) %in% as.character(ExceptionalDays2$ExceptionalDate)))
-        &&(!(as.character(ExceptionalDays2$ExceptionalDate[i]+1) %in% as.character(ProximityDays$Dates) )) ){
-      ProximityDays$Dates[nrow(ProximityDays)-i+1] <- ExceptionalDays2$ExceptionalDate[i]+1
-      ProximityDays$Annual[nrow(ProximityDays)-i+1] <- ExceptionalDays2$Annual[i]
-      ProximityDays$ProximityDaysTypeID[nrow(ProximityDays)-i+1] <- paste(as.character(ExceptionalDays2$ExceptionalDayTypeID[i]), "+", sep="")
+    
+    for (i in 1:nrow(ExceptionalDays2)){
+      if ((!(as.character(ExceptionalDays2$ExceptionalDate[i]+1) %in% as.character(ExceptionalDays2$ExceptionalDate)))
+          &&(!(as.character(ExceptionalDays2$ExceptionalDate[i]+1) %in% as.character(ProximityDays$Dates) )) ){
+        ProximityDays$Dates[nrow(ProximityDays)-i+1] <- ExceptionalDays2$ExceptionalDate[i]+1
+        ProximityDays$Annual[nrow(ProximityDays)-i+1] <- ExceptionalDays2$Annual[i]
+        ProximityDays$ProximityDaysTypeID[nrow(ProximityDays)-i+1] <- paste(as.character(ExceptionalDays2$ExceptionalDayTypeID[i]), "+", sep="")
+      }
     }
-  }
-  
-  
-  ProximityDays<-ProximityDays[0-which(ProximityDays$ProximityDaysTypeID == "???"), ]
-  ProximityDays<- ProximityDays[order(ProximityDays$Dates), ]
+    
+    
+    if (length(which(ProximityDays$ProximityDaysTypeID == "???")) != 0){
+      ProximityDays<-ProximityDays[0-which(ProximityDays$ProximityDaysTypeID == "???"), ]
+    }
+    ProximityDays<- ProximityDays[order(ProximityDays$Dates), ]
+}
   
   return(list(ExceptionalDays2, ProximityDays))
 }

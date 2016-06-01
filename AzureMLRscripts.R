@@ -1,5 +1,6 @@
 rm(list = ls())
 
+ptm <- proc.time()
 library(plyr)
 require(forecast)
 require(MASS)
@@ -7,22 +8,30 @@ source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/DataHoursV2_ML.R"
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/ExceptionalDayandEffectFormatV2_ML.R")
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/TranslateDayofWeek.R")
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/FindQtrOutliers.R")
-source("C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/ML/OpenCloseDayTime_ML_InR.R")
-source("C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/ML/RegularCloseDayofWeek_ML_InR.R")
+source("C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/ML/OpenCloseDayTime_ML.R")
+source("C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/ML/RegularCloseDayofWeek_ML.R")
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/PreDataPrecessing_MissTransNormV6_ML.R")
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/ExponentialCoeff.R")
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/DailyPred_PostProcessingV3_ML.R")
+source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/NormalIntradayPrediction_ML.R")
+source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/AbnormalIntradayPrediction_ML.R")
 
 
 
-StartDate <- "2015-12-02"
+StartDate <- "2015-12-01"
 FinishDate <- "2015-12-31"
 
 salesHistories <- read.csv("C://Users/ptech3/Desktop/AZureML/salesHistoriesCSV.csv",header = T)
 ExceptionalDates <- read.csv("C://Users/ptech3/Desktop/AZureML/ExceptionalDates.csv",header = T) # class: data.frame
-openingHours <- read.csv("C://Users/ptech3/Desktop/AZureML/openingHoursCSV_right.csv",header = T)
+#oeningHours <- read.csv("C://Users/ptech3/Desktop/AZureML/openingHoursCSV_right.csv",header = T)
+openingHours2 <- read.csv("C://Users/ptech3/Desktop/AZureML/openingHoursCSV.csv",header = T)
+
+openingHours222 <- data.frame(Dates = as.Date(as.POSIXct(openingHours2$OpenFrom, origin = "1970-01-01", tz="GMT")),
+                              OpenFrom =  format(as.POSIXct(openingHours2$OpenFrom, origin = "1970-01-01", tz="GMT"), "%H:%M:%S"),
+                              OpenTo = format(as.POSIXct(openingHours2$OpenTo, origin = "1970-01-01", tz="GMT"), "%H:%M:%S"))
+
 StartFinishDate <- data.frame(StartDate, FinishDate)
-ExceptionalDatesOpeningHours <-   rbind.fill(ExceptionalDates, openingHours)
+ExceptionalDatesOpeningHours <-   rbind.fill(ExceptionalDates, openingHours222)
 
 
 
@@ -34,11 +43,12 @@ FinishDate <- as.character(OtherInfor$FinishDate[1])
 ExceptionalDatesCSV <- OtherInfor[c(!is.na(OtherInfor$ExceptionalDate)), c(3:7)]
 ExceptionalDatesCSV$ExceptionalDate <- format(as.POSIXct(ExceptionalDatesCSV$ExceptionalDate, origin = "1970-01-01", tz="GMT"), "%Y-%m-%d");
 
-OpenDayResults <- OtherInfor[c(!is.na(OtherInfor$OpenFrom)), c(8:12)]
-OpenDayResults$OpenFrom <- as.POSIXct(OpenDayResults$OpenFrom, origin = "1970-01-01", tz="GMT")
-OpenDayResults$OpenTo <- as.POSIXct(OpenDayResults$OpenTo, origin = "1970-01-01", tz="GMT")
-OpenDayResults$EffectiveFrom <- format(as.POSIXct(OpenDayResults$EffectiveFrom, origin = "1970-01-01", tz="GMT"), "%Y-%m-%d")
-
+OpenDayResults <- OtherInfor[c(!is.na(OtherInfor$OpenFrom)), c(8:10)]
+OpenDayResults$Dates <- as.Date(OpenDayResults$Dates)
+#OpenDayResults$OpenFrom <- as.POSIXct(OpenDayResults$OpenFrom, origin = "1970-01-01", tz="GMT")
+#OpenDayResults$OpenTo <- as.POSIXct(OpenDayResults$OpenTo, origin = "1970-01-01", tz="GMT")
+#OpenDayResults$EffectiveFrom <- format(as.POSIXct(OpenDayResults$EffectiveFrom, origin = "1970-01-01", tz="GMT"), "%Y-%m-%d")
+#OpenDayResults$EffectiveTo[which(OpenDayResults$EffectiveTo == "NA")] <- NA
 
 
 salesHistories$FinishTime <- as.POSIXct(salesHistories$FinishTime, origin = "1970-01-01", tz="GMT")
@@ -88,19 +98,24 @@ print(ExceptionalDayandEffects)
 ###III: Find opening and closing day-time from first day in history to last day of prediction
 ### Change format to dataframe
 
-OpenDayTime12 <- OpenCloseDayTime_ML_InR(FirstDate, FinishDateT, OpenDayResults)
+#OpenDayTime12 <- OpenCloseDayTime_ML(FirstDate, FinishDateT, OpenDayResults)
 # OpenDayTime12 <- OpenCloseDayTime(FirstDate, FinishDateT, OpenDayResults)
 # OpenDayResults = data.frame(col1 = OpenFrom, col2=OpenTo, col3 = EffectiveFrom, col4=EffectiveTo, col5= DayOfWeek)
 
-CloseDays <- OpenDayTime12[[1]]
-OpenDayTime <- OpenDayTime12[[2]]
+#CloseDays <- OpenDayTime12[[1]]
+#OpenDayTime <- OpenDayTime12[[2]]
 
+OpenDayTime <- OpenDayResults
+#OpenDayTime <- read.csv("C://Users/ptech3/Dropbox/Ploytech/Regression/RdotNet/OpenDayTime_FromCSharp.csv",header = T)
+OpenDayTime <- OpenDayTime[which(OpenDayTime$Dates >= as.Date(FirstDate)),]
+CloseDays <- OpenDayTime$Dates[which((OpenDayTime$OpenFrom=="00:00:00") &(OpenDayTime$OpenTo=="00:00:00") )]
+OpenDayTime$Dates <- as.Date(OpenDayTime$Dates)
 
 ##############################################################################################################
 ### IV: Find weekly closing day 
-RegularCloseDayofWeekCSV <- RegularCloseDayofWeek_ML_InR(OpenDayResults)
-
-
+source("C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/ML/RegularCloseDayofWeek_MLV2.R")
+NoOfWeek <- (as.integer(as.Date(LastDate) - as.Date(FirstDate)) / 7)
+RegularCloseDayofWeekCSV <- RegularCloseDayofWeek_MLV2(CloseDays, NoOfWeek)
 
 
 ##############################################################################################################
@@ -151,3 +166,16 @@ HistoryAndPredictHourlyInfo_updated <- NormalIntradayPrediction_ML(HistoryAndPre
 # HistoryAndPredictInfo = data.frame(Dates, Items, DayofWeek, OpenFrom, OpenTo, SD.Type, PD.Type, Outlier)
 # PredictInfor = data.frame(Dates, Items, DayofWeek, OpenFrom, OpenTo, SD.Type, PD.Type, Outlier)
 # Output = updated HistoryAndPredictHourlyInfo
+
+
+
+
+##############################################################################################################
+### IX: Abnormal intraday prediction
+HistoryAndPredictHourlyInfo_updated2 <- AbnormalIntradayPrediction_ML(HistoryAndPredictHourlyInfo_updated, HistoryAndPredictInfo, PredictInfor)
+# HistoryAndPredictHourlyInfo_updated = data.frame(Time, Items)
+# HistoryAndPredictInfo = data.frame(Dates, Items, DayofWeek, OpenFrom, OpenTo, SD.Type, PD.Type, Outlier)
+# PredictInfor = data.frame(Dates, Items, DayofWeek, OpenFrom, OpenTo, SD.Type, PD.Type, Outlier)
+# Output = updated HistoryAndPredictHourlyInfo data.frame(col1 = Time,  clo2 = Item)
+
+proc.time() - ptm

@@ -58,7 +58,7 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayan
                         Preds=Daypred.temp)
   
   
-  print(Daypred)
+  #print(Daypred)
   ########## II: Scaling: from normalized [0, 1] to Box-Cox format
   NewMax<-InputData[[2]]
   NewMin<-InputData[[3]]
@@ -126,16 +126,17 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayan
   # 0: Deal with Proximity days first, which can be replace by exceptional day replacement
   Ind <- c()
   Ind <- which(Daypred$ProximityDays)
-  for (j in 1:length(Ind)){
-    ProximityDayTypeID <- Daypred$PD.Type[Ind[j]]
-    Hist.Dates <- sort(CleanedData$Dates[which(CleanedData$PD.Type == ProximityDayTypeID)])
-    
-    if (length(Hist.Dates)>0){
-      ProximityDayCoeff<-ExponentialCoeff(length(Hist.Dates), 0.65)
-      Daypred$Rev2_BoxCox[Ind[j]]<-sum(ProximityDayCoeff*(CleanedData$X_coeff[which(CleanedData$Dates %in% Hist.Dates)]*CleanedData$Values_BoxCox[which(CleanedData$Dates %in% Hist.Dates)]))
+  if (length(Ind)>0){
+    for (j in 1:length(Ind)){
+      ProximityDayTypeID <- Daypred$PD.Type[Ind[j]]
+      Hist.Dates <- sort(CleanedData$Dates[which(CleanedData$PD.Type == ProximityDayTypeID)])
+      
+      if (length(Hist.Dates)>0){
+        ProximityDayCoeff<-ExponentialCoeff(length(Hist.Dates), 0.65)
+        Daypred$Rev2_BoxCox[Ind[j]]<-sum(ProximityDayCoeff*(CleanedData$X_coeff[which(CleanedData$Dates %in% Hist.Dates)]*CleanedData$Values_BoxCox[which(CleanedData$Dates %in% Hist.Dates)]))
+      }
     }
   }
-  
   
   # Special days
   Hist.Dates<-c()
