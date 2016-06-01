@@ -6,11 +6,13 @@ RegularCloseDayofWeek_MLV2 <- function(CloseDays, NoOfWeek){
   CloseDayTime2 <- data.frame(CloseDays, DayOfWeek = weekdays(as.Date(CloseDays)))
   AllNames <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
   
-  CloseDayofWeek <- c()
+  x <- c()
   
   for (i in length(AllNames)){
     if (length(which(CloseDayTime2$DayOfWeek == AllNames[i])) > (2/3 * NoOfWeek))
-      CloseDayofWeek <- c(CloseDayofWeek, AllNames[i])
+      x <- c(x, AllNames[i])
   }
+  
+  CloseDayofWeek <- data.frame(x)
   return (CloseDayofWeek)
 }
