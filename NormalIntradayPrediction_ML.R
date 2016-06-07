@@ -33,6 +33,11 @@ NormalIntradayPrediction_ML <- function(HistoryAndPredictHourlyInfo, HistoryAndP
         if (length(temp)==0){stop("No 100% matched history")}
         UpdatedSameNormalDayInd <- temp
         },
+        warning = function(w){
+          UpdatedSameNormalDayInd<-tail(which((NormalHistoryAndPredictInfo$DayofWeek[1: (which(NormalHistoryAndPredictInfo$Dates== PredictInfor$Dates[NormalPredictionDayInd[i]])-1)] == PredictInfor$DayofWeek[NormalPredictionDayInd[i]])),
+                                        n = 4)
+          return(UpdatedSameNormalDayInd)
+        },
         error = function(err){ # release constraint if no history
           UpdatedSameNormalDayInd<-tail(which((NormalHistoryAndPredictInfo$DayofWeek[1: (which(NormalHistoryAndPredictInfo$Dates== PredictInfor$Dates[NormalPredictionDayInd[i]])-1)] == PredictInfor$DayofWeek[NormalPredictionDayInd[i]])),
                                         n = 4)
