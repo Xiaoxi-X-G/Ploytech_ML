@@ -6,10 +6,8 @@ require(forecast)
 require(MASS)
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/DataHoursV2_ML.R")
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/ExceptionalDayandEffectFormatV2_ML.R")
-source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/TranslateDayofWeek.R")
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/FindQtrOutliers.R")
 source("C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/ML/OpenCloseDayTime_ML.R")
-source("C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/ML/RegularCloseDayofWeek_ML.R")
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/PreDataPrecessing_MissTransNormV6_ML.R")
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/ExponentialCoeff.R")
 source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/DailyPred_PostProcessingV3_ML.R")
@@ -21,10 +19,9 @@ source("C://Users/ptech3/Desktop/AZureML/upload2ML_Allfunction/AbnormalIntradayP
 StartDate <- "2015-12-01"
 FinishDate <- "2015-12-31"
 
-salesHistories <- read.csv("C://Users/ptech3/Desktop/AZureML/salesHistoriesCSV.csv",header = T)
+salesHistories <- read.csv("C://Users/ptech3/Desktop/AZureML/salesHistoriesCSV_N0008.csv",header = T)
 ExceptionalDates <- read.csv("C://Users/ptech3/Desktop/AZureML/ExceptionalDates.csv",header = T) # class: data.frame
-#oeningHours <- read.csv("C://Users/ptech3/Desktop/AZureML/openingHoursCSV_right.csv",header = T)
-openingHours2 <- read.csv("C://Users/ptech3/Desktop/AZureML/openingHoursCSV.csv",header = T)
+openingHours2 <- read.csv("C://Users/ptech3/Desktop/AZureML/openingHoursCSV_N0008.csv",header = T)
 
 openingHours222 <- data.frame(Dates = as.Date(as.POSIXct(openingHours2$OpenFrom, origin = "1970-01-01", tz="GMT")),
                               OpenFrom =  format(as.POSIXct(openingHours2$OpenFrom, origin = "1970-01-01", tz="GMT"), "%H:%M:%S"),
@@ -58,18 +55,14 @@ VendData.stor.temp0$FinishTime <- as.POSIXct(VendData.stor.temp0$FinishTime, ori
 
 
 
-#VendData.stor.temp<- DataHoursV2_ML(VendData.stor.temp0, col=2, format(VendData.stor.temp0$FinishTime[1], "%Y-%m-%d"), format(tail(VendData.stor.temp0$FinishTime,n=1), "%Y-%m-%d"))
-
 #### Daily aggregation
-#temp3 <- tapply(VendData.stor.temp[,2], format(VendData.stor.temp[,1], "%Y-%m-%d"), sum)
 temp3 <- tapply(VendData.stor.temp0$Transactions, format(VendData.stor.temp0$FinishTime, "%Y-%m-%d"), sum)
 InputData  <- data.frame(Dates = as.Date(names(temp3)), Values = unname(temp3))
 
 ######
-#FirstDate <- as.character(format(VendData.stor.temp$Time[1],"%Y-%m-%d"))
-#LastDate <- as.character(format(tail(VendData.stor.temp$Time, n=1),"%Y-%m-%d"))
 FirstDate <- as.character(format(VendData.stor.temp0$FinishTime[1],"%Y-%m-%d"))
 LastDate <- as.character(format(tail(VendData.stor.temp0$FinishTime, n=1),"%Y-%m-%d"))
+
 ##############################################################################################################
 ###  I: Reset the StartDate to the first unavailiable day
 FinishDateT <- FinishDate
@@ -177,5 +170,8 @@ HistoryAndPredictHourlyInfo_updated2 <- AbnormalIntradayPrediction_ML(HistoryAnd
 # HistoryAndPredictInfo = data.frame(Dates, Items, DayofWeek, OpenFrom, OpenTo, SD.Type, PD.Type, Outlier)
 # PredictInfor = data.frame(Dates, Items, DayofWeek, OpenFrom, OpenTo, SD.Type, PD.Type, Outlier)
 # Output = updated HistoryAndPredictHourlyInfo data.frame(col1 = Time,  clo2 = Item)
+
+
+PredictionResults <- tail(HistoryAndPredictHourlyInfo_updated2, n = (24*as.integer(1+as.Date(FinishDateT)- as.Date(StartDateT))))
 
 proc.time() - ptm
