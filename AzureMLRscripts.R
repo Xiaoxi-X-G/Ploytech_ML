@@ -23,8 +23,8 @@ source(paste(RScriptPath,"/RegularCloseDayofWeek_MLV2.R", sep=""))
 
 
 
-StartDate <- "2016-01-01"
-FinishDate <- "2016-01-21"
+StartDate <- "2016-10-21"
+FinishDate <- "2016-11-21"
 
 
 ############################## Load ExceptionalDatesOpeningHours Data in the same format as AZure ML
@@ -78,8 +78,10 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
     StartDate <- as.character(OtherInfor$StartDate[1])
     FinishDate <- as.character(OtherInfor$FinishDate[1])
     
-      if ((nrow(salesHistories)==0) || is.na(StartDate) || is.na(FinishDate)){ # no hisotical data or Start Finish Date
-        print("No historical data, or No StartDate or FinishDate, or Error at data importing")
+      if ((nrow(salesHistories)==0) || is.na(StartDate) || is.na(FinishDate)
+          || (as.integer(as.Date(FinishDate) - as.Date(StartDate))<=0) ){ # no hisotical data or Start Finish Date
+       
+         print("No historical data, or No StartDate or FinishDate, or Error at data importing")
         PredictionResults <- data.frame(Time = NA, Items = NA)
       }else{
       
@@ -232,7 +234,7 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
   },
   
   error = function(cond){ # all other errors would be caught and gives no output
-    print("errors may occur at inputs, library or functions; if no, a thoroughly code-check is requried")
+    print("errors may occur at inputs, library or functions, or the data length doesn't match; if no, a thoroughly code-check is requried")
     PredictionResults <- data.frame(Time = NA, Items = NA)
     return(PredictionResults)
   }
