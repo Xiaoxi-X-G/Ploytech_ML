@@ -89,7 +89,6 @@ for (i in 1:nrow(LocationAndJobRoleIDResult)){
   
   
   
-  
   #### Connect to DB and find corresponding holidays and Saved as ExceptionalDatesRight.csv
   source(paste(RScriptPath, "/Holidays2LocationID.R", sep=""))
   Holidays2LocationID(as.character(LocationAndJobRoleIDResult$LocationID[i]), RScriptPath, DatabaseName)
