@@ -50,7 +50,7 @@ for (i in 1:nrow(LocationAndJobRoleIDResult)){
   
   ################## Start Testing, with MSE calcualted
   NoDays <-20
-  StartDate<- "2015-10-11"
+  StartDate<- "2015-03-11"
   FinishDate<- as.Date(StartDate) + NoDays - 1
   # StartDate<- as.character(as.Date(format(tail(VendData.stor.temp$Time, n =1), "%Y-%m-%d")) - NoDays+1)
   # FinishDate<- as.character(format(tail(VendData.stor.temp$Time, n =1), "%Y-%m-%d"))
@@ -84,8 +84,9 @@ for (i in 1:nrow(LocationAndJobRoleIDResult)){
   
   
   ######
-  ##
+  
 
+  
   
   
   
