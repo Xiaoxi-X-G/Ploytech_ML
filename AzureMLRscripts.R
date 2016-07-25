@@ -1,6 +1,5 @@
 rm(list = ls())
 
-
 ptm <- proc.time()
 library(plyr)
 require(forecast)
