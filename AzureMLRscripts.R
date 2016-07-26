@@ -102,7 +102,7 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
       temp3 <- tapply(VendData.stor.temp0$Transactions, format(VendData.stor.temp0$FinishTime, "%Y-%m-%d"), sum)
       InputData  <- data.frame(Dates = as.Date(names(temp3)), Values = unname(temp3))
       
-      ######
+      ###### 
       FirstDate <- as.character(format(VendData.stor.temp0$FinishTime[1],"%Y-%m-%d"))
       LastDate <- as.character(format(tail(VendData.stor.temp0$FinishTime, n=1),"%Y-%m-%d"))
       
