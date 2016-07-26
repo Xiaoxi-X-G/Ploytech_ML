@@ -117,14 +117,7 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
         StartDateT <-StartDate
       }
       
-      # print("Start and Finish Date")
-      # print(StartDateT)
-      # print(FinishDateT) 
-      # 
-      # print("First and Last Date")
-      # print(FirstDate)
-      # print(LastDate)
-      
+
       if ((as.integer(as.Date(StartDateT) - as.Date(FirstDate)) <= 8*7) || (as.integer(as.Date(FinishDateT) - as.Date(StartDateT)) <= 0)
           || (as.integer(as.Date(LastDate) - as.Date(FirstDate)) <= 8*7)){ # at least 8 weeks data are required 
         
