@@ -121,23 +121,28 @@ PreDataPrecessing_MissTransNormV6_ML<-function(FinishDateT, InputData, Exception
     Ind <-c()
     Ind<- sort(unique(c(which(OutputData$SpecialDays), which(OutputData$Outliers), which(OutputData$ProximityDays))))
     for (j in 1:length(Ind)){
-      ReplaceValue<-tryCatch(
-        {
-          data.temp <- OutputData$Values_BoxCox[(Ind[j]-21):(Ind[j]-1)]
-          day.ts<-ts(data.temp, frequency = 7)
-          fit <-ets(day.ts) 
-          ReplaceValuePred <- forecast(fit, h = 1)
-          ReplaceValue <- ReplaceValuePred$mean
-        },
-        warning = function(cond){
-          ReplaceValue <- mean(OutputData$Values_BoxCox)
-          return(ReplaceValue)
-        },
-        error = function(cond){
-          ReplaceValue <- mean(OutputData$Values_BoxCox)
-          return(ReplaceValue)
-        }
-      )
+      # Initialize if falls into first 3 weeks
+      if (Ind[j] <=22){
+        ReplaceValue <- mean(OutputData$Values_BoxCox[setdiff(c(1:22), Ind)], na.rm = T)
+      }else{
+        ReplaceValue<-tryCatch(
+          {
+            data.temp <- OutputData$Values_BoxCox[(Ind[j]-21):(Ind[j]-1)]
+            day.ts<-ts(data.temp, frequency = 7)
+            fit <-ets(day.ts) 
+            ReplaceValuePred <- forecast(fit, h = 1)
+            ReplaceValue <- ReplaceValuePred$mean
+          },
+          warning = function(cond){
+            ReplaceValue <- mean(OutputData$Values_BoxCox)
+            return(ReplaceValue)
+          },
+          error = function(cond){
+            ReplaceValue <- mean(OutputData$Values_BoxCox)
+            return(ReplaceValue)
+          }
+        )
+      }
       OutputData$X_coeff[Ind[j]] <- OutputData$Values_BoxCox[Ind[j]]/ReplaceValue
       OutputData$Values_BoxCox[Ind[j]] <- ReplaceValue
     }
