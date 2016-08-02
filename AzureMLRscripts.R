@@ -22,8 +22,8 @@ source(paste(RScriptPath,"/RegularCloseDayofWeek_MLV2.R", sep=""))
 
 
 
-StartDate <- "2016-10-21"
-FinishDate <- "2016-11-21"
+StartDate <- "2015-12-01"
+FinishDate <- "2015-12-31"
 
 
 ############################## Load ExceptionalDatesOpeningHours Data in the same format as AZure ML
@@ -156,13 +156,13 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
         
         ##############################################################################################################
         ### V: Data Preprocessing
-        XXX <- PreDataPrecessing_MissTransNormV6_ML(FinishDateT, InputData, ExceptionalDayandEffects, CloseDays, RegularCloseDayofWeekCSV)# FristDate.T, LastDate.T = character 
+        XXX <- PreDataPrecessing_MissTransNormV6_ML(InputData, ExceptionalDayandEffects, CloseDays, RegularCloseDayofWeekCSV)# FristDate.T, LastDate.T = character 
         
         
         
         ##############################################################################################################
         ### VI: Daily prediction
-        YYYY <- DailyPred_PostProcessingV3_ML(FinishDateT, XXX, ExceptionalDayandEffects, CloseDays)
+        YYYY <- DailyPred_PostProcessingV3_ML(FinishDateT, StartDateT, XXX, ExceptionalDayandEffects, CloseDays)
         
         
         if (nrow(OpenDayTime) == 0){ #### No Openinghours information, only output daily forecasting
