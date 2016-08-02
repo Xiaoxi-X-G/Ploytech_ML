@@ -83,7 +83,7 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
          print("No historical data, or No StartDate or FinishDate, or Error at data importing")
         PredictionResults <- data.frame(Time = NA, Items = NA)
       }else{
-      
+       
 
       ExceptionalDatesCSV <- OtherInfor[c(!is.na(OtherInfor$ExceptionalDate)), c(3:7)]
       ExceptionalDatesCSV$ExceptionalDate <- format(as.POSIXct(ExceptionalDatesCSV$ExceptionalDate, origin = "1970-01-01", tz="GMT"), "%Y-%m-%d");
