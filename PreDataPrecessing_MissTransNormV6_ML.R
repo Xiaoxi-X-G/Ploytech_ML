@@ -1,5 +1,4 @@
-PreDataPrecessing_MissTransNormV6_ML<-function(FinishDateT, InputData, ExceptionalDayandEffects, CloseDays, RegularCloseDayofWeekCSV){
-  # FristDate.T, LastDate.T = character 
+PreDataPrecessing_MissTransNormV6_ML<-function(InputData, ExceptionalDayandEffects, CloseDays, RegularCloseDayofWeekCSV){
   # ExceptionalDayandEffects = list(ExceptionalDays, ProximityDays)
   #          where ExceptionalDays = data.frame(ExceptionalDate, Annual, ExceptionalDayTypeID)
   #          where ProximityDays = data.frame(Dates, Annual, ProximityDaysTypeID)
