@@ -20,7 +20,7 @@ source(paste(RScriptPath,"/AbnormalIntradayPrediction_ML.R", sep=""))
 source(paste(RScriptPath,"/RegularCloseDayofWeek_MLV2.R", sep=""))
 
 
-
+ 
 
 StartDate <- "2015-12-01"
 FinishDate <- "2015-12-31"
