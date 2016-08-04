@@ -23,7 +23,7 @@ source(paste(RScriptPath,"/RegularCloseDayofWeek_MLV2.R", sep=""))
 
 
 StartDate <- "2015-12-01"
-FinishDate <- "2015-11-30"
+FinishDate <- "2015-12-31"
 
 
 ############################## Load ExceptionalDatesOpeningHours Data in the same format as AZure ML
