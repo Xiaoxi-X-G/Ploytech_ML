@@ -23,7 +23,7 @@ source(paste(RScriptPath,"/RegularCloseDayofWeek_MLV2.R", sep=""))
 
 
 StartDate <- "2015-12-01"
-FinishDate <- "2015-12-31"
+FinishDate <- "2015-11-30"
 
 
 ############################## Load ExceptionalDatesOpeningHours Data in the same format as AZure ML
@@ -44,7 +44,7 @@ ExceptionalDatesOpeningHours <- tryCatch( # catach errors at the inputs: Excepti
 },
 
 error = function(cond){ # all other errors would be caught and gives no output
-  print("Errors  occur at ExceptionalDates or Opening Hours")
+  print("Errors  occur at ExceptionalDates or Opening hours")
     ExceptionalDatesOpeningHours <- data.frame(ExceptionalDate = NA, Annual = NA,
                                   ForecastIgnoreHistory = NA, ForecastDateSpecific = NA,
                                   ExceptionalDayTypeID = NA, Dates = NA, OpenFrom = NA, OpenTo = NA)
@@ -79,9 +79,10 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
     
       if ((nrow(salesHistories)==0) || is.na(StartDate) || is.na(FinishDate)
           || (as.integer(as.Date(FinishDate) - as.Date(StartDate))<=0) ){ # no hisotical data or Start Finish Date
-       
-         print("No historical data, or No StartDate or FinishDate, or Error at data importing")
-        PredictionResults <- data.frame(Time = NA, Items = NA)
+         
+         ErrMsg <- "No historical data, or no start date or finish date information, or errors at data importing"
+         print(ErrMsg)
+        PredictionResults <- data.frame(Time = "9999-01-01", Items = ErrMsg)
       }else{
        
 
@@ -121,8 +122,9 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
       if ((as.integer(as.Date(StartDateT) - as.Date(FirstDate)) <= 8*7) || (as.integer(as.Date(FinishDateT) - as.Date(StartDateT)) <= 0)
           || (as.integer(as.Date(LastDate) - as.Date(FirstDate)) <= 8*7)){ # at least 8 weeks data are required 
         
-        print("Start or Finish Dates errors")
-        PredictionResults <- data.frame(Time = NA, Items = NA)
+        ErrMsg <- "Start date or finish Dates error; or the data length is less than eight weeks"
+        print(ErrMsg)
+        PredictionResults <- data.frame(Time = "9999-01-01", Items = ErrMsg)
       }else{
         ##############################################################################################################
         ### II: Calculate Full exceptional days and proximity days
@@ -226,8 +228,9 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
   },
   
   error = function(cond){ # all other errors would be caught and gives no output
-    print("errors may occur at inputs, library or functions, or the data length doesn't match; if no, a thoroughly code-check is requried")
-    PredictionResults <- data.frame(Time = NA, Items = NA)
+    ErrMsg <- "Errors may occur at inputs, libraries or functions, or the data length doesn't match-up; otherwise, a thoroughly code-check is requried"
+    print(ErrMsg)
+    PredictionResults <- data.frame(Time = "9999-01-01", Items = ErrMsg)
     return(PredictionResults)
   }
 )
