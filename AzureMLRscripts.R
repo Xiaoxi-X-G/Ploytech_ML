@@ -98,6 +98,8 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
       VendData.stor.temp0$FinishTime <- as.POSIXct(VendData.stor.temp0$FinishTime, origin = "1970-01-01", tz="GMT") # Order changes DayTime format to Epoch
       
       
+      VendData.stor <- data.frame(Time = VendData.stor.temp0$FinishTime, Items = VendData.stor.temp0$Transactions)
+      VendData.stor$Time <- as.POSIXct(VendData.stor$Time, origin = "1970-01-01", tz="GMT")
       
       ################## Daily aggregation
       temp3 <- tapply(VendData.stor.temp0$Transactions, format(VendData.stor.temp0$FinishTime, "%Y-%m-%d"), sum)
