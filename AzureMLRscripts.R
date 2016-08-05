@@ -22,8 +22,8 @@ source(paste(RScriptPath,"/RegularCloseDayofWeek_MLV2.R", sep=""))
 
 
 
-StartDate <- "2015-12-01"
-FinishDate <- "2015-12-31"
+StartDate <- "2016-07-01"
+FinishDate <- "2016-07-31"
 
 
 ############################## Load ExceptionalDatesOpeningHours Data in the same format as AZure ML
@@ -100,7 +100,7 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
       
       
       ################## Daily aggregation
-      temp3 <- tapply(VendData.stor.temp0$Transactions, format(VendData.stor.temp0$FinishTime, "%Y-%m-%d"), sum)
+      temp3 <- tapply(VendData.stor.temp0$ValueItem, format(VendData.stor.temp0$FinishTime, "%Y-%m-%d"), sum)
       InputData  <- data.frame(Dates = as.Date(names(temp3)), Values = unname(temp3))
       
       ######
