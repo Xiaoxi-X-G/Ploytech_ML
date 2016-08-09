@@ -50,7 +50,7 @@ PreDataPrecessing_MissTransNormV6_ML<-function(InputData, ExceptionalDayandEffec
       PDInd <- which(ProximityDays$Dates == OutputData$Dates[i])
       OutputData$PD.Type[i] <- ProximityDays$ProximityDaysTypeID[PDInd]
     }
-    if (as.factor(OutputData$Dates[i]) %in% CloseDays){
+    if (as.character(OutputData$Dates[i]) %in% as.character(CloseDays)){
       OutputData$CloseDays[i] <- TRUE
     }
   }

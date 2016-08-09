@@ -6,7 +6,8 @@ require(forecast)
 require(MASS)
 
 RScriptPath <- "C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/AZureML/upload2ML_Allfunction"
-DataPath <- "C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/AZureML/AllData"
+#DataPath <- "C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/AZureML/AllData"
+DataPath <-"C:/Source/Ontime/Scheduler/App_Data"
 
 ############## Load All R functions
 source(paste(RScriptPath,"/DataHoursV2_ML.R", sep=""))
@@ -22,8 +23,8 @@ source(paste(RScriptPath,"/RegularCloseDayofWeek_MLV2.R", sep=""))
 
  
 
-StartDate <- "2016-07-01"
-FinishDate <- "2016-07-31"
+StartDate <- "2015-12-01"
+FinishDate <- "2015-12-31"
 
 
 ############################## Load ExceptionalDatesOpeningHours Data in the same format as AZure ML
@@ -139,15 +140,16 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
         ##############################################################################################################
         ###III: Find opening and closing day-time from first day in history to last day of prediction
         ### Change format to dataframe
+        OpenDayTime <- data.frame(Dates = seq(as.Date(FirstDate), as.Date(FinishDateT), by="day"),
+                                  OpenFrom= rep("00:00:00", length = (1+as.integer(as.Date(FinishDateT)-as.Date(FirstDate)))),
+                                  OpenTo= rep("00:00:00", length = (1+as.integer(as.Date(FinishDateT)-as.Date(FirstDate))))
+                                  , stringsAsFactors=FALSE)
         
-        #OpenDayTime12 <- OpenCloseDayTime_ML(FirstDate, FinishDateT, OpenDayResults)
-        # OpenDayTime12 <- OpenCloseDayTime(FirstDate, FinishDateT, OpenDayResults)
-        # OpenDayResults = data.frame(col1 = OpenFrom, col2=OpenTo, col3 = EffectiveFrom, col4=EffectiveTo, col5= DayOfWeek)
-        
-        #CloseDays <- OpenDayTime12[[1]]
-        #OpenDayTime <- OpenDayTime12[[2]]
-        
-        OpenDayTime <- OpenDayResults
+        for (i in 1:nrow(OpenDayResults)){
+            OpenDayTime$OpenFrom[which(OpenDayTime$Dates == OpenDayResults$Dates[i])] <- as.character(OpenDayResults$OpenFrom[i])
+            OpenDayTime$OpenTo[which(OpenDayTime$Dates == OpenDayResults$Dates[i])] <- as.character(OpenDayResults$OpenTo[i])
+        }
+  
         OpenDayTime <- OpenDayTime[which(OpenDayTime$Dates >= as.Date(FirstDate)),]
         CloseDays <- OpenDayTime$Dates[which((OpenDayTime$OpenFrom=="00:00:00") &(OpenDayTime$OpenTo=="00:00:00") )]
         OpenDayTime$Dates <- as.Date(OpenDayTime$Dates)
@@ -223,7 +225,8 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
           # Output = updated HistoryAndPredictHourlyInfo data.frame(col1 = Time,  clo2 = Item)
           
           
-          PredictionResults <- tail(HistoryAndPredictHourlyInfo_updated2, n = (24*as.integer(1+as.Date(FinishDateT)- as.Date(StartDate))))
+          PredictionResults.temp <- tail(HistoryAndPredictHourlyInfo_updated2, n = (24*as.integer(1+as.Date(FinishDateT)- as.Date(StartDate))))
+          PredictionResults <- data.frame(Time = as.character(PredictionResults.temp$Time), Items = as.character(PredictionResults.temp$Items))        
         }
       }
     }
