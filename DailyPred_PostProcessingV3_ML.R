@@ -110,7 +110,7 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, StartDateT, InputData, Exce
       Daypred$PD.Type[i] <- ProximityDays$ProximityDaysTypeID[PDInd]
     }
     
-    if (as.factor(Daypred$Dates[i]) %in% CloseDays){
+    if (as.character(Daypred$Dates[i]) %in% as.character(CloseDays)){
       Daypred$CloseDays[i] <- TRUE
     }
   }
