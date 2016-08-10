@@ -1,5 +1,5 @@
-DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayandEffects, CloseDays){
-  # FristDate.T, LastDate.T = character
+DailyPred_PostProcessingV3_ML<-function(FinishDateT, StartDateT, InputData, ExceptionalDayandEffects, CloseDays){
+  # FristDateT, StartDateT = character
   # ExceptionalDayandEffects = list(ExceptionalDays, ProximityDays)
   #          where ExceptionalDays = data.frame(ExceptionalDate, Annual, ExceptionalDayTypeID)
   #          where ProximityDays = data.frame(Dates, Annual, ProximityDaysTypeID)
@@ -110,7 +110,7 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, InputData, ExceptionalDayan
       Daypred$PD.Type[i] <- ProximityDays$ProximityDaysTypeID[PDInd]
     }
     
-    if (as.factor(Daypred$Dates[i]) %in% CloseDays){
+    if (as.character(Daypred$Dates[i]) %in% as.character(CloseDays)){
       Daypred$CloseDays[i] <- TRUE
     }
   }

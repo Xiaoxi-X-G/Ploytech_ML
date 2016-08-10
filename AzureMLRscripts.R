@@ -1,12 +1,13 @@
 rm(list = ls())
 
 ptm <- proc.time()
-library(plyr)
+library(plyr) 
 require(forecast)
-require(MASS)
+require(MASS) 
 
 RScriptPath <- "C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/AZureML/upload2ML_Allfunction"
-DataPath <- "C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/AZureML/AllData"
+#DataPath <- "C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/AZureML/AllData"
+DataPath <-"C:/Source/Ontime/Scheduler/App_Data"
 
 ############## Load All R functions
 source(paste(RScriptPath,"/DataHoursV2_ML.R", sep=""))
@@ -20,10 +21,10 @@ source(paste(RScriptPath,"/AbnormalIntradayPrediction_ML.R", sep=""))
 source(paste(RScriptPath,"/RegularCloseDayofWeek_MLV2.R", sep=""))
 
 
+ 
 
-
-StartDate <- "2016-10-21"
-FinishDate <- "2016-11-21"
+StartDate <- "2015-12-01"
+FinishDate <- "2015-12-31"
 
 
 ############################## Load ExceptionalDatesOpeningHours Data in the same format as AZure ML
@@ -44,7 +45,7 @@ ExceptionalDatesOpeningHours <- tryCatch( # catach errors at the inputs: Excepti
 },
 
 error = function(cond){ # all other errors would be caught and gives no output
-  print("Errors  occur at ExceptionalDates or Opening Hours")
+  print("Errors  occur at ExceptionalDates or Opening hours")
     ExceptionalDatesOpeningHours <- data.frame(ExceptionalDate = NA, Annual = NA,
                                   ForecastIgnoreHistory = NA, ForecastDateSpecific = NA,
                                   ExceptionalDayTypeID = NA, Dates = NA, OpenFrom = NA, OpenTo = NA)
@@ -79,11 +80,12 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
     
       if ((nrow(salesHistories)==0) || is.na(StartDate) || is.na(FinishDate)
           || (as.integer(as.Date(FinishDate) - as.Date(StartDate))<=0) ){ # no hisotical data or Start Finish Date
-       
-         print("No historical data, or No StartDate or FinishDate, or Error at data importing")
-        PredictionResults <- data.frame(Time = NA, Items = NA)
+         
+         ErrMsg <- "No historical data, or no start date or finish date information, or errors at data importing"
+         print(ErrMsg)
+        PredictionResults <- data.frame(Time = "9999-01-01", Items = ErrMsg)
       }else{
-      
+       
 
       ExceptionalDatesCSV <- OtherInfor[c(!is.na(OtherInfor$ExceptionalDate)), c(3:7)]
       ExceptionalDatesCSV$ExceptionalDate <- format(as.POSIXct(ExceptionalDatesCSV$ExceptionalDate, origin = "1970-01-01", tz="GMT"), "%Y-%m-%d");
@@ -97,9 +99,11 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
       VendData.stor.temp0$FinishTime <- as.POSIXct(VendData.stor.temp0$FinishTime, origin = "1970-01-01", tz="GMT") # Order changes DayTime format to Epoch
       
       
+      VendData.stor <- data.frame(Time = VendData.stor.temp0$FinishTime, Items = VendData.stor.temp0$ValueItem)
+      VendData.stor$Time <- as.POSIXct(VendData.stor$Time, origin = "1970-01-01", tz="GMT")
       
       ################## Daily aggregation
-      temp3 <- tapply(VendData.stor.temp0$Transactions, format(VendData.stor.temp0$FinishTime, "%Y-%m-%d"), sum)
+      temp3 <- tapply(VendData.stor.temp0$ValueItem, format(VendData.stor.temp0$FinishTime, "%Y-%m-%d"), sum)
       InputData  <- data.frame(Dates = as.Date(names(temp3)), Values = unname(temp3))
       
       ###### 
@@ -117,19 +121,13 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
         StartDateT <-StartDate
       }
       
-      # print("Start and Finish Date")
-      # print(StartDateT)
-      # print(FinishDateT) 
-      # 
-      # print("First and Last Date")
-      # print(FirstDate)
-      # print(LastDate)
-      
+
       if ((as.integer(as.Date(StartDateT) - as.Date(FirstDate)) <= 8*7) || (as.integer(as.Date(FinishDateT) - as.Date(StartDateT)) <= 0)
           || (as.integer(as.Date(LastDate) - as.Date(FirstDate)) <= 8*7)){ # at least 8 weeks data are required 
         
-        print("Start or Finish Dates errors")
-        PredictionResults <- data.frame(Time = NA, Items = NA)
+        ErrMsg <- "Start date or finish Dates error; or the data length is less than eight weeks"
+        print(ErrMsg)
+        PredictionResults <- data.frame(Time = "9999-01-01", Items = ErrMsg)
       }else{
         ##############################################################################################################
         ### II: Calculate Full exceptional days and proximity days
@@ -142,15 +140,16 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
         ##############################################################################################################
         ###III: Find opening and closing day-time from first day in history to last day of prediction
         ### Change format to dataframe
+        OpenDayTime <- data.frame(Dates = seq(as.Date(FirstDate), as.Date(FinishDateT), by="day"),
+                                  OpenFrom= rep("00:00:00", length = (1+as.integer(as.Date(FinishDateT)-as.Date(FirstDate)))),
+                                  OpenTo= rep("00:00:00", length = (1+as.integer(as.Date(FinishDateT)-as.Date(FirstDate))))
+                                  , stringsAsFactors=FALSE)
         
-        #OpenDayTime12 <- OpenCloseDayTime_ML(FirstDate, FinishDateT, OpenDayResults)
-        # OpenDayTime12 <- OpenCloseDayTime(FirstDate, FinishDateT, OpenDayResults)
-        # OpenDayResults = data.frame(col1 = OpenFrom, col2=OpenTo, col3 = EffectiveFrom, col4=EffectiveTo, col5= DayOfWeek)
-        
-        #CloseDays <- OpenDayTime12[[1]]
-        #OpenDayTime <- OpenDayTime12[[2]]
-        
-        OpenDayTime <- OpenDayResults
+        for (i in 1:nrow(OpenDayResults)){
+            OpenDayTime$OpenFrom[which(OpenDayTime$Dates == OpenDayResults$Dates[i])] <- as.character(OpenDayResults$OpenFrom[i])
+            OpenDayTime$OpenTo[which(OpenDayTime$Dates == OpenDayResults$Dates[i])] <- as.character(OpenDayResults$OpenTo[i])
+        }
+  
         OpenDayTime <- OpenDayTime[which(OpenDayTime$Dates >= as.Date(FirstDate)),]
         CloseDays <- OpenDayTime$Dates[which((OpenDayTime$OpenFrom=="00:00:00") &(OpenDayTime$OpenTo=="00:00:00") )]
         OpenDayTime$Dates <- as.Date(OpenDayTime$Dates)
@@ -163,13 +162,13 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
         
         ##############################################################################################################
         ### V: Data Preprocessing
-        XXX <- PreDataPrecessing_MissTransNormV6_ML(FinishDateT, InputData, ExceptionalDayandEffects, CloseDays, RegularCloseDayofWeekCSV)# FristDate.T, LastDate.T = character 
+        XXX <- PreDataPrecessing_MissTransNormV6_ML(InputData, ExceptionalDayandEffects, CloseDays, RegularCloseDayofWeekCSV)# FristDate.T, LastDate.T = character 
         
         
         
         ##############################################################################################################
         ### VI: Daily prediction
-        YYYY <- DailyPred_PostProcessingV3_ML(FinishDateT, XXX, ExceptionalDayandEffects, CloseDays)
+        YYYY <- DailyPred_PostProcessingV3_ML(FinishDateT, StartDateT, XXX, ExceptionalDayandEffects, CloseDays)
         
         
         if (nrow(OpenDayTime) == 0){ #### No Openinghours information, only output daily forecasting
@@ -226,15 +225,17 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
           # Output = updated HistoryAndPredictHourlyInfo data.frame(col1 = Time,  clo2 = Item)
           
           
-          PredictionResults <- tail(HistoryAndPredictHourlyInfo_updated2, n = (24*as.integer(1+as.Date(FinishDateT)- as.Date(StartDate))))
+          PredictionResults.temp <- tail(HistoryAndPredictHourlyInfo_updated2, n = (24*as.integer(1+as.Date(FinishDateT)- as.Date(StartDate))))
+          PredictionResults <- data.frame(Time = as.character(PredictionResults.temp$Time), Items = as.character(PredictionResults.temp$Items))        
         }
       }
     }
   },
   
   error = function(cond){ # all other errors would be caught and gives no output
-    print("errors may occur at inputs, library or functions, or the data length doesn't match; if no, a thoroughly code-check is requried")
-    PredictionResults <- data.frame(Time = NA, Items = NA)
+    ErrMsg <- "Errors may occur at inputs, libraries or functions, or the data length doesn't match-up; otherwise, a thoroughly code-check is requried"
+    print(ErrMsg)
+    PredictionResults <- data.frame(Time = "9999-01-01", Items = ErrMsg)
     return(PredictionResults)
   }
 )
