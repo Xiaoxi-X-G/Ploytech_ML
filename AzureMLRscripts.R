@@ -223,7 +223,7 @@ PredictionResults <- tryCatch( # catch all other errors that may occur
           # HistoryAndPredictInfo = data.frame(Dates, Items, DayofWeek, OpenFrom, OpenTo, SD.Type, PD.Type, Outlier)
           # PredictInfor = data.frame(Dates, Items, DayofWeek, OpenFrom, OpenTo, SD.Type, PD.Type, Outlier)
           # Output = updated HistoryAndPredictHourlyInfo data.frame(col1 = Time,  clo2 = Item)
-          
+           
           
           PredictionResults.temp <- tail(HistoryAndPredictHourlyInfo_updated2, n = (24*as.integer(1+as.Date(FinishDateT)- as.Date(StartDate))))
           PredictionResults <- data.frame(Time = as.character(PredictionResults.temp$Time), Items = as.character(PredictionResults.temp$Items))        
