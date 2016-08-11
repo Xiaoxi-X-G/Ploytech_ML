@@ -6,8 +6,8 @@ require(forecast)
 require(MASS) 
 
 RScriptPath <- "C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/AZureML/upload2ML_Allfunction"
-#DataPath <- "C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/AZureML/AllData"
-DataPath <-"C:/Source/Ontime/Scheduler/App_Data"
+DataPath <- "C://Users/ptech3/Dropbox/Ploytech/Regression/AzureML/AZureML/AllData"
+#DataPath <-"C:/Source/Ontime/Scheduler/App_Data"
 
 ############## Load All R functions
 source(paste(RScriptPath,"/DataHoursV2_ML.R", sep=""))
@@ -25,7 +25,7 @@ source(paste(RScriptPath,"/RegularCloseDayofWeek_MLV2.R", sep=""))
 
 StartDate <- "2015-12-01"
 FinishDate <- "2015-12-31"
-
+SegRequirement <- c("1","0","1","0")
 
 ############################## Load ExceptionalDatesOpeningHours Data in the same format as AZure ML
 
@@ -74,9 +74,36 @@ error = function(cond){
 ##############################################################################################      
 PredictionResults <- tryCatch( # catch all other errors that may occur
   {
-    salesHistories <- read.csv(paste(DataPath, "/salesHistoriesTest.csv", sep=""),header = T)
+    salesHistories.temp <- read.csv(paste(DataPath, "/salesHistoriesTest.csv", sep=""),header = T)
     StartDate <- as.character(OtherInfor$StartDate[1])
     FinishDate <- as.character(OtherInfor$FinishDate[1])
+    
+    
+    ######## Segmentation
+    ##I: format files
+    ##II: construct unique ID based on SegRequirement
+    ##III: loop through each segments
+    DigitNo <- max(max(nchar(salesHistories.temp[,1])), max(nchar(salesHistories.temp[,2]))
+                   ,max(nchar(salesHistories.temp[,3])), max(nchar(salesHistories.temp[,4])))
+    
+    for (i in 1:4){
+      salesHistories.temp[,i] <- sprintf(paste("%0",DigitNo,"d",sep=""), salesHistories.temp[,i])
+    }
+    
+    
+    salesHistoriesID.temp <- salesHistories.temp[, (0 - which(SegRequirement=="0"))]
+    salesHistoriesID <- data.frame(ID = paste(salesHistoriesID.temp$LocationID,salesHistoriesID.temp$RobRoleID, sep="")
+                                    ,FinishTime =salesHistoriesID.temp$FinishTime
+                                    ,ValueItem=salesHistoriesID.temp$ValueItem)
+    
+    
+    
+    for (i in unique(salesHistoriesID$ID)){
+      salesHistories <- salesHistoriesID[which(salesHistoriesID$ID == i), c(2,3)]
+      print(salesHistories)
+    }
+    
+    
     
       if ((nrow(salesHistories)==0) || is.na(StartDate) || is.na(FinishDate)
           || (as.integer(as.Date(FinishDate) - as.Date(StartDate))<=0) ){ # no hisotical data or Start Finish Date
