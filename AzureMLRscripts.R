@@ -22,7 +22,7 @@ source(paste(RScriptPath,"/RegularCloseDayofWeek_MLV2.R", sep=""))
 
 
  
-Options <- read.csv(paste(DataPath, "/OptionsTest.csv", sep="") ,header = T)
+Options <- read.csv(paste(DataPath, "/OptionsTest.csv", sep=""), header = T)
 
 
 ############################## Load ExceptionalDatesOpeningHours Data in the same format as AZure ML
@@ -66,8 +66,8 @@ error = function(cond){
                            ExceptionalDayTypeID = NA, LocationID.H = NA, Dates = NA, OpenFrom = NA, OpenTo = NA)
   return(OtherInfor)
 }
-
 )
+
 
 ###### Main function
 StartDate <- as.character(OtherInfor$StartDate[1])
@@ -96,10 +96,10 @@ salesHistoriesID <- data.frame(ID = paste(salesHistoriesID.temp$LocationID,sales
 
 
 ## prepare other information
-ExceptionalDatesCSV.temp <- OtherInfor[c(!is.na(OtherInfor$ExceptionalDate)), c(3:8)]
+ExceptionalDatesCSV.temp <- OtherInfor[c(!is.na(OtherInfor$ExceptionalDate)), c(5:10)]
 ExceptionalDatesCSV.temp$ExceptionalDate <- format(as.POSIXct(ExceptionalDatesCSV.temp$ExceptionalDate, origin = "1970-01-01", tz="GMT"), "%Y-%m-%d");
 
-OpenDayResults.temp <- OtherInfor[c(!is.na(OtherInfor$OpenFrom)), c(9:12)]
+OpenDayResults.temp <- OtherInfor[c(!is.na(OtherInfor$OpenFrom)), c(11:14)]
 OpenDayResults.temp$Dates <- as.Date(OpenDayResults.temp$Dates)
 colnames(OpenDayResults.temp)[1] <- "LocationID"
 
@@ -125,8 +125,8 @@ for (m in 1:length(UniqueID)){
   PredictionResults <- c()
   PredictionResults <- tryCatch( # catch all other errors that may occur
     {
-      StartDate <- as.character(OtherInfor$StartDate[1])
-      FinishDate <- as.character(OtherInfor$FinishDate[1])
+      # StartDate <- as.character(OtherInfor$StartDate[1])
+      # FinishDate <- as.character(OtherInfor$FinishDate[1])
       
       
       if ((nrow(salesHistories)==0) || is.na(StartDate) || is.na(FinishDate)
