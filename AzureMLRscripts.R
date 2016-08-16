@@ -128,10 +128,10 @@ for (m in 1:length(UniqueID)){
                                         c(-1)]
   
   #############################Prediction############################################      
-  PredictionResults <- data.frame(LocationID = character(), DepartmentID = character(),
-                                  JobRoleID = character(), SkillID = character(),
-                                  Time = character(), Items = character(), 
-                                  stringsAsFactors=FALSE)
+  # PredictionResults <- data.frame(LocationID = character(), DepartmentID = character(),
+  #                                 JobRoleID = character(), SkillID = character(),
+  #                                 Time = character(), Items = character(), 
+  #                                 stringsAsFactors=FALSE)
   PredictionResults <- tryCatch( # catch all other errors that may occur
     {
       # StartDate <- as.character(OtherInfor$StartDate[1])
