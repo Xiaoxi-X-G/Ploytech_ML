@@ -233,9 +233,9 @@ for (m in 1:length(UniqueID)){
           #  print("Incorrect Opening hour information")
           if (as.character(Interval) == "0"){  
             PredictionResults.temp <- data.frame(LocationID = rep(FullIDs[1], length=nrow(YYYY)),
-                                                 DepartmentID = rep(FullIDs[1], length=nrow(YYYY)),
-                                                 JobRoleID = rep(FullIDs[1], length=nrow(YYYY)),
-                                                 SkillID = rep(FullIDs[1], length=nrow(YYYY)),
+                                                 DepartmentID = rep(FullIDs[2], length=nrow(YYYY)),
+                                                 JobRoleID = rep(FullIDs[3], length=nrow(YYYY)),
+                                                 SkillID = rep(FullIDs[4], length=nrow(YYYY)),
                                                  Time = YYYY$Dates, Items=YYYY$Rev2_Orig, 
                                                  stringsAsFactors=FALSE)
             PredictionResults <- PredictionResults.temp[which(PredictionResults.temp$Time >= as.Date(StartDate)),]
