@@ -19,8 +19,8 @@ PreDataPrecessing_MissTransNormV6_ML<-function(InputData, ExceptionalDayandEffec
   ##########  0: Incorporate Proximity Day in a chronological format
   ProximityDays<- ExceptionalDayandEffects[[2]]
   
-  print(ExceptionalDays)
-  print(ProximityDays)
+  #print(ExceptionalDays)
+  #print(ProximityDays)
   ################### I: Format data started from FirstDate to LastDate
   #CloseDays<-read.csv(paste(RScriptPath, CloseDatesCSV, sep=""), header = TRUE)
   FirstDate <- as.character(InputData$Dates[1])
@@ -106,7 +106,7 @@ PreDataPrecessing_MissTransNormV6_ML<-function(InputData, ExceptionalDayandEffec
     }
   }
   
-  print(outliers)
+  #print(outliers)
   ################### Untick regular closing day
   if (length(RegularCloseDayofWeek)>0){
     for (j in 1:length(RegularCloseDayofWeek)){
