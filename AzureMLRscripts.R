@@ -45,9 +45,10 @@ ExceptionalDatesOpeningHours <- tryCatch( # catach errors at the inputs: Excepti
 
 error = function(cond){ # all other errors would be caught and gives no output
   print("Errors  occur at ExceptionalDates or Opening hours")
-    ExceptionalDatesOpeningHours <- data.frame(ExceptionalDate = NA, Annual = NA,
+    ExceptionalDatesOpeningHours <- data.frame(LocationID = NA, ExceptionalDate = NA, Annual = NA,
                                   ForecastIgnoreHistory = NA, ForecastDateSpecific = NA,
-                                  ExceptionalDayTypeID = NA, Dates = NA, OpenFrom = NA, OpenTo = NA)
+                                  ExceptionalDayTypeID = NA, LocationID.H = NA, 
+                                  Dates = NA, OpenFrom = NA, OpenTo = NA)
   return(ExceptionalDatesOpeningHours)
 }
 )
@@ -61,9 +62,11 @@ OtherInfor <- tryCatch(
 },
 error = function(cond){
   print("If ExceptionalDatesOpening Hours is correct, error is at Start and Finish Date")
-  OtherInfor <- data.frame(StartDate = NA, FinishDate = NA, LocationID = NA, ExceptionalDate = NA, Annual = NA,
+  OtherInfor <- data.frame(StartDate = NA, FinishDate = NA, Breakdown = NA, Interval = NA,
+                           LocationID = NA, ExceptionalDate = NA, Annual = NA,
                            ForecastIgnoreHistory = NA, ForecastDateSpecific = NA,
-                           ExceptionalDayTypeID = NA, LocationID.H = NA, Dates = NA, OpenFrom = NA, OpenTo = NA)
+                           ExceptionalDayTypeID = NA, LocationID.H = NA, 
+                           Dates = NA, OpenFrom = NA, OpenTo = NA)
   return(OtherInfor)
 }
 )
@@ -105,7 +108,10 @@ colnames(OpenDayResults.temp)[1] <- "LocationID"
 
 
 ## start segmentation and prediction
-PredictionAllResults <- c()
+PredictionAllResults <- data.frame(LocationID = character(), DepartmentID = character(),
+                                                          JobRoleID = character(), SkillID = character(),
+                                                          Time = character(), Items = character(), 
+                                                          stringsAsFactors=FALSE)
 UniqueID <- as.character(unique(salesHistoriesID$ID))
 for (m in 1:length(UniqueID)){
   id <- UniqueID[m]
@@ -122,7 +128,10 @@ for (m in 1:length(UniqueID)){
                                         c(-1)]
   
   #############################Prediction############################################      
-  PredictionResults <- c()
+  PredictionResults <- data.frame(LocationID = character(), DepartmentID = character(),
+                                  JobRoleID = character(), SkillID = character(),
+                                  Time = character(), Items = character(), 
+                                  stringsAsFactors=FALSE)
   PredictionResults <- tryCatch( # catch all other errors that may occur
     {
       # StartDate <- as.character(OtherInfor$StartDate[1])
@@ -138,7 +147,8 @@ for (m in 1:length(UniqueID)){
                                         DepartmentID = FullIDs[2],
                                         JobRoleID = FullIDs[3],
                                         SkillID = FullIDs[4],
-                                        Time = "9999-01-01", Items = ErrMsg)
+                                        Time = "9999-01-01", Items = ErrMsg, 
+                                        stringsAsFactors=FALSE)
       }else{
         
         salesHistories$FinishTime <- as.POSIXct(salesHistories$FinishTime, origin = "1970-01-01", tz="GMT")
@@ -177,7 +187,8 @@ for (m in 1:length(UniqueID)){
                                           DepartmentID = FullIDs[2],
                                           JobRoleID = FullIDs[3],
                                           SkillID = FullIDs[4],
-                                          Time = "9999-01-01", Items = ErrMsg)
+                                          Time = "9999-01-01", Items = ErrMsg,
+                                          stringsAsFactors=FALSE)
         }else{
           ##############################################################################################################
           ### II: Calculate Full exceptional days and proximity days
@@ -217,16 +228,16 @@ for (m in 1:length(UniqueID)){
           YYYY <- DailyPred_PostProcessingV3_ML(FinishDateT, StartDateT, XXX, ExceptionalDayandEffects, CloseDays)
           
           
-          if (as.integer(as.Date(FinishDateT)-as.Date(FirstDate) +1) != 
-              as.integer(as.Date(tail(OpenDayTime$Dates, n=1)) - as.Date(OpenDayTime$Dates[1])+1)){ #### No Openinghours information, only output daily forecasting
-            print("Incorrect Opening hour information")
-            
+          # if (as.integer(as.Date(FinishDateT)-as.Date(FirstDate) +1) != 
+          #     as.integer(as.Date(tail(OpenDayTime$Dates, n=1)) - as.Date(OpenDayTime$Dates[1])+1)){ #### No Openinghours information, only output daily forecasting
+          #  print("Incorrect Opening hour information")
+          if (as.character(Interval) == "0"){  
             PredictionResults.temp <- data.frame(LocationID = rep(FullIDs[1], length=nrow(YYYY)),
                                                  DepartmentID = rep(FullIDs[1], length=nrow(YYYY)),
                                                  JobRoleID = rep(FullIDs[1], length=nrow(YYYY)),
                                                  SkillID = rep(FullIDs[1], length=nrow(YYYY)),
-                                                 Time = YYYY$Dates, 
-                                                 Items=YYYY$Rev2_Orig)
+                                                 Time = YYYY$Dates, Items=YYYY$Rev2_Orig, 
+                                                 stringsAsFactors=FALSE)
             PredictionResults <- PredictionResults.temp[which(PredictionResults.temp$Time >= as.Date(StartDate)),]
           }else{
             ##############################################################################################################
@@ -268,7 +279,8 @@ for (m in 1:length(UniqueID)){
                                             JobRoleID = rep(FullIDs[3], length=nrow(PredictionResults.temp)),
                                             SkillID = rep(FullIDs[4], length=nrow(PredictionResults.temp)),
                                             Time = as.character(PredictionResults.temp$Time), 
-                                            Items = as.character(PredictionResults.temp$Items))        
+                                            Items = as.character(PredictionResults.temp$Items),
+                                            stringsAsFactors=FALSE)        
           }
         }
       }
@@ -281,7 +293,7 @@ for (m in 1:length(UniqueID)){
                                       DepartmentID = FullIDs[2],
                                       JobRoleID = FullIDs[3],
                                       SkillID = FullIDs[4],
-                                      Time = "9999-01-01", Items = ErrMsg)
+                                      Time = "9999-01-01", Items = ErrMsg, stringsAsFactors=FALSE)
       return(PredictionResults)
     }
   )
