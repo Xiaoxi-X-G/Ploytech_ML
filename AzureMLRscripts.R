@@ -91,7 +91,7 @@ salesHistories.temp2 <- cbind(as.data.frame(sapply(salesHistories.temp3[,c(1:4)]
                               salesHistories.temp3[,c(5,6)])
 
 # remove NA rows 
-salesHistories.temp <- salesHistories.temp2[which(rowSums(is.na(salesHistories.temp2[, which(as.integer(strsplit(as.character(Breakdown),"")[[1]])==1)]))==0),]
+salesHistories.temp <- salesHistories.temp2[which(rowSums(is.na(as.matrix(salesHistories.temp2[, which(as.integer(strsplit(as.character(Breakdown),"")[[1]])==1)])))==0),]
 
 DigitNo <- max(max(nchar(salesHistories.temp[which(!is.na(salesHistories.temp[,1])),  1])), 
                max(nchar(salesHistories.temp[which(!is.na(salesHistories.temp[,2])),  2])),
