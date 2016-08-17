@@ -83,8 +83,12 @@ Interval <- as.character(OtherInfor$Interval[1])
 ##II: construct unique ID based on SegRequirement
 ##III: loop through each segments
 
-salesHistories.temp2 <- read.csv(paste(DataPath, "/salesHistoriesTest.csv", sep=""),
-                                na.strings = c("", "NA"), header = T)
+salesHistories.temp3 <- read.csv(paste(DataPath, "/salesHistoriesTest.csv", sep=""),
+                                 header = T)
+
+# covert real NA
+salesHistories.temp2 <- cbind(as.data.frame(sapply(salesHistories.temp3[,c(1:4)], as.integer)),
+                              salesHistories.temp3[,c(5,6)])
 
 # remove NA rows 
 salesHistories.temp <- salesHistories.temp2[which(rowSums(is.na(salesHistories.temp2[, which(as.integer(strsplit(as.character(Breakdown),"")[[1]])==1)]))==0),]
