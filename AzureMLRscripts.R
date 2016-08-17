@@ -83,19 +83,27 @@ Interval <- as.character(OtherInfor$Interval[1])
 ##II: construct unique ID based on SegRequirement
 ##III: loop through each segments
 
-salesHistories.temp <- read.csv(paste(DataPath, "/salesHistoriesTest.csv", sep=""),header = T)
-DigitNo <- max(max(nchar(salesHistories.temp[,1])), max(nchar(salesHistories.temp[,2]))
-               ,max(nchar(salesHistories.temp[,3])), max(nchar(salesHistories.temp[,4])))
+salesHistories.temp2 <- read.csv(paste(DataPath, "/salesHistoriesTest.csv", sep=""),
+                                na.strings = c("", "NA"), header = T)
+
+# remove NA rows 
+salesHistories.temp <- salesHistories.temp2[which(rowSums(is.na(salesHistories.temp2[, which(as.integer(strsplit(as.character(Breakdown),"")[[1]])==1)]))==0),]
+
+DigitNo <- max(max(nchar(salesHistories.temp[which(!is.na(salesHistories.temp[,1])),  1])), 
+               max(nchar(salesHistories.temp[which(!is.na(salesHistories.temp[,2])),  2])),
+               max(nchar(salesHistories.temp[which(!is.na(salesHistories.temp[,3])),  3])),
+               max(nchar(salesHistories.temp[which(!is.na(salesHistories.temp[,4])),  4])))
 
 for (i in 1:4){
   salesHistories.temp[,i] <- sprintf(paste("%0",DigitNo,"d",sep=""), salesHistories.temp[,i])
 }
 
 
-salesHistoriesID.temp <- salesHistories.temp[, (0 - which(as.integer(strsplit(as.character(Breakdown),"")[[1]])==0))]
-salesHistoriesID <- data.frame(ID = paste(salesHistoriesID.temp$LocationID,salesHistoriesID.temp$RobRoleID, sep="")
-                               ,FinishTime =salesHistoriesID.temp$FinishTime
-                               ,ValueItem=salesHistoriesID.temp$ValueItem)
+#salesHistoriesID.temp <- salesHistories.temp[, (0 - which(as.integer(strsplit(as.character(Breakdown),"")[[1]])==0))]
+salesHistoriesID <- data.frame(ID = as.character(interaction(salesHistories.temp[,which(as.integer(strsplit(as.character(Breakdown),"")[[1]])==1)], sep=""))
+                               ,FinishTime =salesHistories.temp$FinishTime
+                               ,ValueItem=salesHistories.temp$ValueItem
+                               ,stringsAsFactors=FALSE)
 
 
 ## prepare other information
@@ -194,7 +202,7 @@ for (m in 1:length(UniqueID)){
           ### II: Calculate Full exceptional days and proximity days
           ExceptionalDays <- ExceptionalDatesCSV
           ExceptionalDayandEffects<-ExceptionalDayandEffectFormatV2_ML(ExceptionalDatesCSV, FirstDate, FinishDateT)
-          print(ExceptionalDayandEffects)
+          #print(ExceptionalDayandEffects)
           
           ##############################################################################################################
           ###III: Find opening and closing day-time from first day in history to last day of prediction
@@ -238,9 +246,10 @@ for (m in 1:length(UniqueID)){
                                                  DepartmentID = rep(FullIDs[2], length=nrow(YYYY)),
                                                  JobRoleID = rep(FullIDs[3], length=nrow(YYYY)),
                                                  SkillID = rep(FullIDs[4], length=nrow(YYYY)),
-                                                 Time = YYYY$Dates, Items=YYYY$Rev2_Orig, 
+                                                 Time = as.character(YYYY$Dates), 
+                                                 Items= as.character(YYYY$Rev2_Orig), 
                                                  stringsAsFactors=FALSE)
-            PredictionResults <- PredictionResults.temp[which(PredictionResults.temp$Time >= as.Date(StartDate)),]
+            PredictionResults <- PredictionResults.temp[which(as.Date(PredictionResults.temp$Time) >= as.Date(StartDate)),]
           }else{
             ##############################################################################################################
             ### VII: Initialization intraday prediction
