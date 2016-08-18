@@ -36,8 +36,13 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, StartDateT, InputData, Exce
   lg <- as.Date(FinishDateT)-as.Date(StartDateT) +1
   fit<-tryCatch(
     {
+      if (nrow(CleanedData) > 366){
       day.ts<-msts(CleanedData$Values_Scale01, seasonal.periods=c(7,365.25))
       fit <-tbats(day.ts, use.box.cox=FALSE) 
+      }else{
+        day.ts<-ts(CleanedData$Values_Scale01, frequency = 7)
+        fit <-ets(day.ts, damped = TRUE)
+      }
     },
     warning = function(cond){
       day.ts<-ts(CleanedData$Values_Scale01, frequency = 7)
