@@ -30,6 +30,7 @@ Options <- read.csv(paste(DataPath, "/OptionsTest.csv", sep=""), header = T)
 ExceptionalDatesOpeningHours <- tryCatch( # catach errors at the inputs: ExceptionalDates and Openinghours
 {
   ExceptionalDates <- read.csv(paste(DataPath, "/ExceptionalDatesTest.csv", sep="") ,header = T) # class: data.frame
+  ExceptionalDates$ExceptionalDayTypeID <- as.integer(ExceptionalDates$ExceptionalDayTypeID) # Fix data type
   openingHours2 <- read.csv(paste(DataPath, "/openingHoursTest.csv", sep=""),header = T)
   
   openingHours222 <- data.frame(LocationID.H = openingHours2$LocationID,
@@ -53,6 +54,8 @@ error = function(cond){ # all other errors would be caught and gives no output
 }
 )
 
+print("######## check ########")
+print(ExceptionalDatesOpeningHours)
 
 ############################## Load Startand Finish Data in the same format as AZure ML
 OtherInfor <- tryCatch(
@@ -120,13 +123,18 @@ if (nrow(salesHistories.temp) == 0){
   
   
   ## prepare other information
-  ExceptionalDatesCSV.temp <- OtherInfor[c(!is.na(OtherInfor$ExceptionalDate)), c(5:10)]
+  ExceptionalDatesCSV.temp <- OtherInfor[c(!is.na(OtherInfor$LocationID)), c(5:10)]
   ExceptionalDatesCSV.temp$ExceptionalDate <- format(as.POSIXct(ExceptionalDatesCSV.temp$ExceptionalDate, origin = "1970-01-01", tz="GMT"), "%Y-%m-%d");
   
-  OpenDayResults.temp <- OtherInfor[c(!is.na(OtherInfor$OpenFrom)), c(11:14)]
+  OpenDayResults.temp <- OtherInfor[c(!is.na(OtherInfor$LocationID.H)), c(11:14)]
   OpenDayResults.temp$Dates <- as.Date(OpenDayResults.temp$Dates)
   colnames(OpenDayResults.temp)[1] <- "LocationID"
   
+  
+  print("####### Check-2 ###########")
+  print(head(salesHistoriesID, n =5))
+  print(head(ExceptionalDatesCSV.temp, n =5))
+  print(head(OpenDayResults.temp, n =5))
   
   ## start segmentation and prediction
   PredictionAllResults <- data.frame(LocationID = character(), DepartmentID = character(),
@@ -147,6 +155,13 @@ if (nrow(salesHistories.temp) == 0){
                                                     c(-1)]
     OpenDayResults <- OpenDayResults.temp[which(OpenDayResults.temp$LocationID == as.integer(substr(id, 1, DigitNo))),
                                           c(-1)]
+    
+    
+    
+    print("####### Check-3 ###########")  
+    print(head(salesHistories, n =5))                                 
+    print(head(ExceptionalDatesCSV, n =5))
+    print(head(OpenDayResults, n =5))
     
     #############################Prediction############################################      
     PredictionResults <- tryCatch( # catch all other errors that may occur
@@ -192,6 +207,12 @@ if (nrow(salesHistories.temp) == 0){
             StartDateT <-StartDate
           }
           
+          print("####### Check-4 ###########") 
+          print(FinishDateT)
+          print(StartDateT)
+          print(FirstDate) 
+          print(LastDate)
+          
           if ((as.integer(as.Date(StartDateT) - as.Date(FirstDate)) <= 8*7) || (as.integer(as.Date(FinishDateT) - as.Date(StartDateT)) <= 0)
               || (as.integer(as.Date(LastDate) - as.Date(FirstDate)) <= 8*7)){ # at least 8 weeks data are required 
             
@@ -231,12 +252,23 @@ if (nrow(salesHistories.temp) == 0){
             NoOfWeek <- (as.integer(as.Date(LastDate) - as.Date(FirstDate)) / 7)
             RegularCloseDayofWeekCSV <- RegularCloseDayofWeek_MLV2(CloseDays, NoOfWeek)
             
+            
+            print("####### Check-5 ###########") 
+            print(head(InputData, n =4))
+            print(head(ExceptionalDatesCSV, n =4))
+            print(CloseDays) 
+            print(RegularCloseDayofWeekCSV)
+            
             ### V: Data Preprocessing
             XXX <- PreDataPrecessing_MissTransNormV6_ML(InputData, ExceptionalDayandEffects, CloseDays, RegularCloseDayofWeekCSV)# FristDate.T, LastDate.T = character 
             
+            print("####### Check-6 ###########")
+            #print(XXX)
             
             ### VI: Daily prediction
             YYYY <- DailyPred_PostProcessingV3_ML(FinishDateT, StartDateT, XXX, ExceptionalDayandEffects, CloseDays)
+            print("######### check-7 ###########")
+            head(YYYY, n =5)
             
     
             if (as.character(Interval) == "0"){  
