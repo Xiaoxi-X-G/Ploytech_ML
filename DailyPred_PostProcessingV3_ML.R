@@ -149,7 +149,7 @@ DailyPred_PostProcessingV3_ML<-function(FinishDateT, StartDateT, InputData, Exce
   Ind <- which(Daypred$SpecialDays)
   if (length(Ind)>0){
     for (i in 1:length(Ind)){
-      if (Daypred$SD.Annual[Ind[i]]){ 
+      if ((Daypred$SD.Annual[Ind[i]]) & (nrow(Daypred)>365) ){ 
         #Deal with annually repeated special days
         Dates<-Daypred$Dates[Ind[i]]
         

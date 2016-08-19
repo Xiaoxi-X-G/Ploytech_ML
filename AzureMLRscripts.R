@@ -198,6 +198,18 @@ if (nrow(salesHistories.temp) == 0){
           LastDate <- as.character(format(tail(VendData.stor.temp0$FinishTime, n=1),"%Y-%m-%d"))
           
           
+          ### Update First Date, InputData, VendDate.stor based on OpenDay Results,
+          ### Otherwise, cannot identify RegularClose Day
+          if (OpenDayResults$Dates[1] > as.Date(FirstDate)){
+            FirstDate <- as.character(OpenDayResults$Dates[1])
+            
+            InputData <- InputData[which(InputData$Dates >= as.Date(FirstDate)),]
+            
+            VendData.stor <- VendData.stor[which(as.Date(format(VendData.stor$Time, "%Y-%m-%d")) 
+                                                 >= as.Date(FirstDate)), ]
+          }
+          
+          
           ##############################################################################################################
           ###  I: Reset the StartDate to the first unavailiable day
           FinishDateT <- FinishDate
@@ -350,5 +362,5 @@ plot(c(Dailys$Values_Scale01, rep(0, length=nrow(YYYY))), type="o", col="blue")
 lines(c(rep(0,length=nrow(Dailys)), YYYY$Preds), type="o", col="red")
 
 ###
-plot(c(InputData$Values, rep(0, length=nrow(PredictionAllResults))), type="o", col="blue")
-lines(c(rep(0,length=nrow(InputData)), PredictionAllResults$Items), type="o", col="red")
+plot(c(InputData$Values, rep(0, length=nrow(Dailys))), type="o", col="blue")
+lines(c(rep(0,length=nrow(InputData)), YYYY$Rev2_Orig), type="o", col="red")
