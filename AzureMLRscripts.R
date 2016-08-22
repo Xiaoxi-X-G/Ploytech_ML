@@ -167,8 +167,8 @@ if (nrow(salesHistories.temp) == 0){
     PredictionResults <- tryCatch( # catch all other errors that may occur
       {
  
-        if ((nrow(salesHistories)==0) || is.na(StartDate) || is.na(FinishDate)
-            || (as.integer(as.Date(FinishDate) - as.Date(StartDate))<=0) ){ # no hisotical data or Start Finish Date
+        if ((nrow(salesHistories)==0) | is.na(StartDate) | is.na(FinishDate)
+            | (as.integer(as.Date(FinishDate) - as.Date(StartDate))<=0) ){ # no hisotical data or Start Finish Date
           
           ErrMsg <- "No historical data, or no start date or finish date information, or errors at data importing"
           print(ErrMsg)
@@ -225,8 +225,8 @@ if (nrow(salesHistories.temp) == 0){
           print(FirstDate) 
           print(LastDate)
           
-          if ((as.integer(as.Date(StartDateT) - as.Date(FirstDate)) <= 8*7) || (as.integer(as.Date(FinishDateT) - as.Date(StartDateT)) <= 0)
-              || (as.integer(as.Date(LastDate) - as.Date(FirstDate)) <= 8*7)){ # at least 8 weeks data are required 
+          if ((as.integer(as.Date(StartDateT) - as.Date(FirstDate)) <= 8*7) | (as.integer(as.Date(FinishDateT) - as.Date(StartDateT)) <= 0)
+              | (as.integer(as.Date(LastDate) - as.Date(FirstDate)) <= 8*7)){ # at least 8 weeks data are required 
             
             ErrMsg <- "Start date or finish Dates error; or the data length is less than eight weeks"
             print(ErrMsg)
