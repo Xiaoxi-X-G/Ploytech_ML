@@ -63,7 +63,7 @@ PreDataPrecessing_MissTransNormV6_ML<-function(InputData, ExceptionalDayandEffec
   # 1) Initialization using first 3 weeks data
   wk <- 3
   for (i in 1:(wk*7)){
-    if (is.na(OutputData$Values[i])&&(OutputData$SpecialDays[i] ||OutputData$CloseDays[i])){
+    if (is.na(OutputData$Values[i])&(OutputData$SpecialDays[i] |OutputData$CloseDays[i])){
       OutputData$Values[i] <-0
     }else if (is.na(OutputData$Values[i])){
       OutputData$Values[i] <- mean(OutputData$Values[1:(wk*7)], na.rm=TRUE)
@@ -74,7 +74,7 @@ PreDataPrecessing_MissTransNormV6_ML<-function(InputData, ExceptionalDayandEffec
   Ind<-which(is.na(OutputData$Values))
   if (length(Ind)>0){
     for (i in 1:length(Ind)){
-      if (is.na(OutputData$Values[Ind[i]])&&(OutputData$SpecialDays[Ind[i]] ||OutputData$CloseDays[Ind[i]]) ){
+      if (is.na(OutputData$Values[Ind[i]])&(OutputData$SpecialDays[Ind[i]] |OutputData$CloseDays[Ind[i]]) ){
         OutputData$Values[Ind[i]] <-0 #not data at a special day or close date, indicate 0 
       }else if (is.na(OutputData$Values[Ind[i]])){
         day.ts <- ts(OutputData$Values[(Ind[i]-wk*7):(Ind[i]-1)], frequency = 7)
@@ -116,7 +116,7 @@ PreDataPrecessing_MissTransNormV6_ML<-function(InputData, ExceptionalDayandEffec
   
   
   
-  if ((length(outliers)>0) || (length(which(OutputData$SpecialDays)) >0) ||(length(which(OutputData$ProximityDays)) >0) ){
+  if ((length(outliers)>0) | (length(which(OutputData$SpecialDays)) >0) |(length(which(OutputData$ProximityDays)) >0) ){
     Ind <-c()
     Ind<- sort(unique(c(which(OutputData$SpecialDays), which(OutputData$Outliers), which(OutputData$ProximityDays))))
     for (j in 1:length(Ind)){
