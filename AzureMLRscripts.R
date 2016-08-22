@@ -354,7 +354,7 @@ if (nrow(salesHistories.temp) == 0){
   }
 }
 
-proc.time() - ptm
+proc.time() - ptm 
 
 ###
 Dailys <- XXX[[6]]
