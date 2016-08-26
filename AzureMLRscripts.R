@@ -105,6 +105,14 @@ if (nrow(salesHistories.temp) == 0){
                                   SkillID = NA,
                                   Time = "9999-01-01", Items = ErrMsg, 
                                   stringsAsFactors=FALSE)
+  
+  RunTimeAll <- data.frame(LocationID = NA,
+                           DepartmentID = NA,
+                           JobRoleID = NA,
+                           SkillID = NA,
+                           Time = "9999-01-01",
+                           stringsAsFactors=FALSE)
+  
 }else{
   # findout the max digits
   DigitNo <- max(max(nchar(salesHistories.temp[which(!is.na(salesHistories.temp[,1])),  1])), 
@@ -141,9 +149,21 @@ if (nrow(salesHistories.temp) == 0){
                                      JobRoleID = character(), SkillID = character(),
                                      Time = character(), Items = character(), 
                                      stringsAsFactors=FALSE)
+
   UniqueID <- as.character(unique(salesHistoriesID$ID))
+  
+  ## Record Run time
+  RunTimeAll <- data.frame(LocationID = as.character(rep(0, length=length(UniqueID))), 
+                           DepartmentID = as.character(rep(0, length=length(UniqueID))),
+                           JobRoleID = as.character(rep(0, length=length(UniqueID))),
+                           SkillID = as.character(rep(0, length=length(UniqueID))),
+                           Time = as.character(rep(0, length=length(UniqueID))), 
+                           stringsAsFactors=FALSE)
+  
   for (m in 1:length(UniqueID)){
     id <- UniqueID[m]
+    
+    Timer <- proc.time()
     
     FullIDs <- rep("000",4) # Full ID of [LocationaID, DepartmentID, JobRoleID, SkillID]
     FullIDs[which(as.integer(strsplit(as.character(Breakdown),"")[[1]])==1)]<-
@@ -172,6 +192,7 @@ if (nrow(salesHistories.temp) == 0){
           
           ErrMsg <- "No historical data, or no start date or finish date information, or errors at data importing"
           print(ErrMsg)
+
           PredictionResults <- data.frame(LocationID = FullIDs[1],
                                           DepartmentID = FullIDs[2],
                                           JobRoleID = FullIDs[3],
@@ -351,6 +372,13 @@ if (nrow(salesHistories.temp) == 0){
       }
     )
     PredictionAllResults <- rbind(PredictionAllResults, PredictionResults)
+    
+    ## record time
+    RunTimeAll[m,] <- c(as.character(FullIDs[1]), 
+                        as.character(FullIDs[2]),
+                        as.character(FullIDs[3]),
+                        as.character(FullIDs[4]), 
+                        as.character(proc.time()-Timer) )
   }
 }
 
